@@ -1,9 +1,10 @@
 #include <netlist/model.hpp>
 #include <common/treeitem.hpp>
-#include <items/operation.hpp>
+#include <items/blocks/baseblock.hpp>
 #include <items/operationconnector.hpp>
 
 using namespace Netlist;
+using namespace Blocks;
 
 Model::Model(QObject *parent) :
     TreeModel(parent)
@@ -11,7 +12,7 @@ Model::Model(QObject *parent) :
     _rootItem->setData({"Name", "Address"});
 }
 
-void Model::setNetlist(const QSchematic::Netlist<Operation *, OperationConnector *> &netlist) {
+void Model::setNetlist(const QSchematic::Netlist<BaseBlock *, OperationConnector *> &netlist) {
     clear();
 
     if(netlist.nets.empty())

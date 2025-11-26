@@ -1,4 +1,4 @@
-#include <items/operation.hpp>
+#include <items/blocks/baseblock.hpp>
 #include <items/operationconnector.hpp>
 #include <items/popup/popup_operation.hpp>
 #include <commands/node_add_connector.hpp>
@@ -15,6 +15,8 @@
 #include <QInputDialog>
 #include <QGraphicsDropShadowEffect>
 
+using namespace Blocks;
+
 const QColor COLOR_BODY_FILL = QColor(QStringLiteral("#E0E0E0"));
 const QColor COLOR_BODY_BORDER = QColor(Qt::black);
 const QColor SHADOW_COLOR = QColor(63, 63, 63, 100);
@@ -22,7 +24,7 @@ const qreal PEN_WIDTH = 1.5;
 const qreal SHADOW_OFFSET = 7;
 const qreal SHADOW_BLUR_RADIUS = 10;
 
-Operation::Operation(int type, QGraphicsItem *parent) :
+BaseBlock::BaseBlock(int type, QGraphicsItem *parent) :
     QSchematic::Items::Node(type, parent)
 {
     _label = std::make_shared<QSchematic::Items::Label>();
@@ -54,11 +56,11 @@ Operation::Operation(int type, QGraphicsItem *parent) :
     setGraphicsEffect(graphicsEffect);
 }
 
-Operation::~Operation() {
+BaseBlock::~BaseBlock() {
     dissociate_item(_label);
 }
 
-gpds::container Operation::to_container() const {
+gpds::container BaseBlock::to_container() const {
     gpds::container root;
     addItemTypeIdToContainer(root);
     root.add_value("node", QSchematic::Items::Node::to_container());
@@ -67,23 +69,23 @@ gpds::container Operation::to_container() const {
     return root;
 }
 
-void Operation::from_container(const gpds::container &container) {
+void BaseBlock::from_container(const gpds::container &container) {
     QSchematic::Items::Node::from_container(*container.get_value<gpds::container *>("node").value());
     _label->from_container(*container.get_value<gpds::container *>("label").value());
 }
 
-std::shared_ptr<QSchematic::Items::Item> Operation::deepCopy() const {
-    auto clone = std::make_shared<Operation>(::ItemType::OperationType, parentItem());
+std::shared_ptr<QSchematic::Items::Item> BaseBlock::deepCopy() const {
+    auto clone = std::make_shared<BaseBlock>(::ItemType::BaseBlockType, parentItem());
     copyAttributes(*clone);
 
     return clone;
 }
 
-std::unique_ptr<QWidget> Operation::popup() const {
+std::unique_ptr<QWidget> BaseBlock::popup() const {
     return std::make_unique<PopupOperation>(*this);
 }
 
-void Operation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+void BaseBlock::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     Q_UNUSED(option);
     Q_UNUSED(widget)
 
@@ -120,7 +122,7 @@ void Operation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     }
 }
 
-void Operation::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) {
+void BaseBlock::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) {
     QMenu menu;
     {
         QAction *text = new QAction;
@@ -243,7 +245,7 @@ void Operation::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) {
     menu.exec(event->screenPos());
 }
 
-void Operation::alignLabel() {
+void BaseBlock::alignLabel() {
     if(!_label)
         return;
 
@@ -254,23 +256,23 @@ void Operation::alignLabel() {
     _label->setPos(x, y);
 }
 
-std::shared_ptr<QSchematic::Items::Label> Operation::label() const {
+std::shared_ptr<QSchematic::Items::Label> BaseBlock::label() const {
     return _label;
 }
 
-void Operation::setText(const QString &text) {
+void BaseBlock::setText(const QString &text) {
     Q_ASSERT(_label);
 
     _label->setText(text);
 }
 
-QString Operation::text() const {
+QString BaseBlock::text() const {
     Q_ASSERT(_label);
 
     return _label->text();
 }
 
-Solver::BlockType Operation::getSolverBlockType() {
+Solver::BlockType BaseBlock::getSolverBlockType() {
     return {
         QStringLiteral("Base"),
         0,
@@ -282,11 +284,11 @@ Solver::BlockType Operation::getSolverBlockType() {
     };
 }
 
-QVector<double> Operation::getSolverParams() {
+QVector<double> BaseBlock::getSolverParams() {
     return QVector<double>();
 }
 
-void Operation::copyAttributes(Operation &dest) const {
+void BaseBlock::copyAttributes(BaseBlock &dest) const {
     QSchematic::Items::Node::copyAttributes(dest);
 
     dest._label = std::dynamic_pointer_cast<QSchematic::Items::Label>(_label->deepCopy());

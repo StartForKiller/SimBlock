@@ -1,5 +1,5 @@
 #include <items/itemtypes.hpp>
-#include <items/operation.hpp>
+#include <items/blocks/baseblock.hpp>
 #include <items/operationconnector.hpp>
 #include <items/operationconstant.hpp>
 #include <items/operationdemo1.hpp>
@@ -15,8 +15,8 @@ std::shared_ptr<QSchematic::Items::Item> CustomItemFactory::from_container(const
     QSchematic::Items::Item::ItemType type = QSchematic::Items::Factory::extractType(container);
 
     switch(static_cast<ItemType>(type)) {
-        case ItemType::OperationType:
-            return std::make_shared<Operation>();
+        case ItemType::BaseBlockType:
+            return std::make_shared<Blocks::BaseBlock>();
 
         case ItemType::OperationConnectorType:
             return std::make_shared<OperationConnector>();

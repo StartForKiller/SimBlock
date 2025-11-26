@@ -10,7 +10,7 @@ struct ConnectorAttribute {
 };
 
 OperationDemo1::OperationDemo1(QGraphicsItem *parent) :
-    Operation(::ItemType::OperationDemo1Type, parent)
+    BaseBlock(::ItemType::OperationDemo1Type, parent)
 {
     setSize(160, 160);
     label()->setText(QStringLiteral("Demo 1"));
@@ -32,13 +32,13 @@ OperationDemo1::OperationDemo1(QGraphicsItem *parent) :
 gpds::container OperationDemo1::to_container() const {
     gpds::container root;
     addItemTypeIdToContainer(root);
-    root.add_value("operation", Operation::to_container());
+    root.add_value("operation", BaseBlock::to_container());
 
     return root;
 }
 
 void OperationDemo1::from_container(const gpds::container &container) {
-    Operation::from_container(*container.get_value<gpds::container *>("operation").value());
+    BaseBlock::from_container(*container.get_value<gpds::container *>("operation").value());
 }
 
 std::shared_ptr<QSchematic::Items::Item> OperationDemo1::deepCopy() const {
@@ -70,5 +70,5 @@ void OperationDemo1::solveDerivative(const QMap<QString, double> &in, const QVec
 }
 
 void OperationDemo1::copyAttributes(OperationDemo1 &dest) const {
-    Operation::copyAttributes(dest);
+    BaseBlock::copyAttributes(dest);
 }

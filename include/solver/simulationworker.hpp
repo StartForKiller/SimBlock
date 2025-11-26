@@ -4,7 +4,10 @@
 
 #include <QMap>
 
-class Operation;
+namespace Blocks {
+    class BaseBlock;
+};
+
 class OperationConnector;
 
 namespace Solver {
@@ -18,7 +21,7 @@ class SimulationWorker : public QObject {
         explicit SimulationWorker(QObject *parent = nullptr);
         ~SimulationWorker() override = default;
 
-        void setNetlist(QSchematic::Netlist<Operation *, OperationConnector *> *netlist);
+        void setNetlist(QSchematic::Netlist<Blocks::BaseBlock *, OperationConnector *> *netlist);
         void setTimeParameters(double timestep, double timeToSimulate);
         void simulate();
 
@@ -28,7 +31,7 @@ class SimulationWorker : public QObject {
 
     private:
         SolverBase *_solver;
-        QSchematic::Netlist<Operation *, OperationConnector *> *_netlist;
+        QSchematic::Netlist<Blocks::BaseBlock *, OperationConnector *> *_netlist;
         double _timeToSimulate;
         double _timeStep;
 };

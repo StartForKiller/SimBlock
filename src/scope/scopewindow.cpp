@@ -34,4 +34,5 @@ void ScopeWindow::onNewSample(double t, double value) {
 
 void ScopeWindow::onStartSimulation() {
     _graph->data()->clear();
+    _plot->replot(QCustomPlot::rpQueuedReplot);
 }

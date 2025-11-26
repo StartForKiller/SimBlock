@@ -14,13 +14,15 @@
 #include <QInputDialog>
 #include <QGraphicsDropShadowEffect>
 
+using namespace Blocks;
+
 struct ConnectorAttribute {
     QPoint point;
     QString name;
 };
 
 OperationScope::OperationScope(QGraphicsItem *parent) :
-    Operation(::ItemType::OperationScopeType, parent)
+    BaseBlock(::ItemType::OperationScopeType, parent)
 {
     setSize(80, 80);
     label()->setText(QStringLiteral("Scope"));
@@ -41,13 +43,13 @@ OperationScope::OperationScope(QGraphicsItem *parent) :
 gpds::container OperationScope::to_container() const {
     gpds::container root;
     addItemTypeIdToContainer(root);
-    root.add_value("operation", Operation::to_container());
+    root.add_value("operation", BaseBlock::to_container());
 
     return root;
 }
 
 void OperationScope::from_container(const gpds::container &container) {
-    Operation::from_container(*container.get_value<gpds::container *>("operation").value());
+    BaseBlock::from_container(*container.get_value<gpds::container *>("operation").value());
 }
 
 std::shared_ptr<QSchematic::Items::Item> OperationScope::deepCopy() const {
@@ -58,7 +60,7 @@ std::shared_ptr<QSchematic::Items::Item> OperationScope::deepCopy() const {
 }
 
 void OperationScope::copyAttributes(OperationScope &dest) const {
-    Operation::copyAttributes(dest);
+    BaseBlock::copyAttributes(dest);
 }
 
 Solver::BlockType OperationScope::getSolverBlockType() {
@@ -75,8 +77,6 @@ Solver::BlockType OperationScope::getSolverBlockType() {
 }
 
 void OperationScope::setInputNetName(QString name) {
-    printf("Scope NET name: %s\n", name.toStdString().c_str());
-
     _netName = name;
 }
 
@@ -94,20 +94,21 @@ void OperationScope::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) {
     _scopeWindow->show();
 
 
-    Operation::Node::mouseDoubleClickEvent(event);
+    BaseBlock::Node::mouseDoubleClickEvent(event);
 }
 
 void OperationScope::onNewSample(double t, QMap<QString, double> values) {
     generateScopeWindow();
 
     if(values.contains(_netName)) {
-        printf("Value %f\n", values[_netName]);
         _scopeWindow->onNewSample(t, values[_netName]);
     }
 }
 
 void OperationScope::onStartSimulation() {
     generateScopeWindow();
+
+    _netName = QStringLiteral("");
 
     _scopeWindow->onStartSimulation();
 }

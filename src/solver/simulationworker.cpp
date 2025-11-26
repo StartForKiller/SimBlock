@@ -2,6 +2,7 @@
 #include <solver/solver.hpp>
 
 using namespace Solver;
+using namespace Blocks;
 
 SimulationWorker::SimulationWorker(QObject *parent) :
     QObject(parent)
@@ -9,7 +10,7 @@ SimulationWorker::SimulationWorker(QObject *parent) :
     _solver = new Solver::SolverBase();
 }
 
-void SimulationWorker::setNetlist(QSchematic::Netlist<Operation *, OperationConnector *> *netlist) {
+void SimulationWorker::setNetlist(QSchematic::Netlist<BaseBlock *, OperationConnector *> *netlist) {
     _netlist = netlist;
 }
 

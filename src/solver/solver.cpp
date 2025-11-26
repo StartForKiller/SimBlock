@@ -1,9 +1,10 @@
 #include <solver/solver.hpp>
-#include <items/operation.hpp>
+#include <items/blocks/baseblock.hpp>
 #include <items/operationconnector.hpp>
 #include <items/operationscope.hpp>
 
 using namespace Solver;
+using namespace Blocks;
 
 SolverBase::SolverBase()
 {
@@ -14,7 +15,7 @@ SolverBase::~SolverBase() {
 
 }
 
-void SolverBase::setup(const QSchematic::Netlist<Operation *, OperationConnector *> &netlist) {
+void SolverBase::setup(const QSchematic::Netlist<BaseBlock *, OperationConnector *> &netlist) {
     //Populate blocks and block types
     {
         _blocks.clear();

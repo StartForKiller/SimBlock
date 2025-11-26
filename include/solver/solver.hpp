@@ -10,7 +10,10 @@ using SignalID = int;
 #include <QMap>
 #include <functional>
 
-class Operation;
+namespace Blocks {
+    class BaseBlock;
+};
+
 class OperationConnector;
 
 namespace Solver {
@@ -46,7 +49,7 @@ class SolverBase {
         explicit SolverBase();
         virtual ~SolverBase();
 
-        void setup(const QSchematic::Netlist<Operation *, OperationConnector *> &netlist);
+        void setup(const QSchematic::Netlist<Blocks::BaseBlock *, OperationConnector *> &netlist);
         void solve_step(double timestep);
 
         QMap<QString, double> getOutputValues();

@@ -4,7 +4,10 @@
 
 #include <QWidget>
 
-class Operation;
+namespace Blocks {
+    class BaseBlock;
+};
+
 class OperationConnector;
 
 class QPlainTextEdit;
@@ -21,7 +24,7 @@ class Widget : public QWidget {
         Widget(QWidget *parent = nullptr);
         ~Widget() override = default;
 
-        void setNetlist(const QSchematic::Netlist<Operation *, OperationConnector *> &netlist);
+        void setNetlist(const QSchematic::Netlist<Blocks::BaseBlock *, OperationConnector *> &netlist);
 
     private:
         Viewer *m_memory_viewer = nullptr;

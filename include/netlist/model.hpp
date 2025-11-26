@@ -4,7 +4,10 @@
 
 #include <common/treemodel.hpp>
 
-class Operation;
+namespace Blocks {
+    class BaseBlock;
+};
+
 class OperationConnector;
 
 namespace Netlist {
@@ -17,7 +20,7 @@ class Model : public TreeModel {
         explicit Model(QObject *parent = nullptr);
         ~Model() override = default;
 
-        void setNetlist(const QSchematic::Netlist<Operation *, OperationConnector *> &netlist);
+        void setNetlist(const QSchematic::Netlist<Blocks::BaseBlock *, OperationConnector *> &netlist);
 
     private:
         [[nodiscard]] QString pointerToString(const void *ptr);

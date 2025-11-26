@@ -1,6 +1,5 @@
 #include <library/model.hpp>
 #include <library/iteminfo.hpp>
-#include <items/operation.hpp>
 #include <items/operationconstant.hpp>
 #include <items/operationdemo1.hpp>
 #include <items/operationscope.hpp>
@@ -55,7 +54,6 @@ void Model::createModel() {
 
     //TODO
 
-    addTreeItem("Generic", QIcon(), new ::Operation, rootOperations);
     addTreeItem("Demo 1", QIcon(), new ::OperationDemo1, rootOperations);
     addTreeItem("Constant", QIcon(), new ::OperationConstant, rootOperations);
     addTreeItem("Scope", QIcon(), new ::OperationScope, rootOperations);

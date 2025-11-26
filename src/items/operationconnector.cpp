@@ -1,5 +1,5 @@
 #include <items/operationconnector.hpp>
-#include <items/operation.hpp>
+#include <items/blocks/baseblock.hpp>
 #include <items/popup/popup_connector.hpp>
 
 #include <qschematic/items/label.hpp>
@@ -12,6 +12,8 @@
 #include <QGraphicsSceneContextMenuEvent>
 #include <QMenu>
 #include <QInputDialog>
+
+using namespace Blocks;
 
 #define SIZE (_settings.gridSize / 2)
 #define RECT (QRectF(-SIZE, -SIZE, 2 * SIZE, 2 * SIZE))
@@ -138,7 +140,7 @@ void OperationConnector::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
             if(scene()) {
                 std::shared_ptr<QSchematic::Items::Item> itemPointer;
                 {
-                    const Operation *operation = qgraphicsitem_cast<const Operation *>(parentItem());
+                    const BaseBlock *operation = qgraphicsitem_cast<const BaseBlock *>(parentItem());
                     if(!operation)
                         return;
 

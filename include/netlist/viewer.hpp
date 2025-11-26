@@ -4,7 +4,10 @@
 
 #include <QWidget>
 
-class Operation;
+namespace Blocks {
+    class BaseBlock;
+};
+
 class OperationConnector;
 
 namespace Netlist {
@@ -20,7 +23,7 @@ class Viewer : public QWidget {
         Viewer(QWidget *parent = nullptr);
         ~Viewer() override = default;
 
-        void setNetlist(const QSchematic::Netlist<Operation *, OperationConnector *> &netlist);
+        void setNetlist(const QSchematic::Netlist<Blocks::BaseBlock *, OperationConnector *> &netlist);
 
     private:
         Model *_model = nullptr;

@@ -58,6 +58,7 @@ target_sources(
             include/commands/commands.hpp
             include/common/treeitem.hpp
             include/common/treemodel.hpp
+            include/items/blocks/baseblock.hpp
             include/items/popup/popup.hpp
             include/items/popup/popup_connector.hpp
             include/items/popup/popup_operation.hpp
@@ -66,7 +67,6 @@ target_sources(
             include/items/customitemfactory.hpp
             include/items/fancywire.hpp
             include/items/itemtypes.hpp
-            include/items/operation.hpp
             include/items/operationconnector.hpp
             include/items/operationconstant.hpp
             include/items/operationdemo1.hpp
@@ -90,12 +90,12 @@ target_sources(
         src/commands/node_add_connector.cpp
         src/common/treeitem.cpp
         src/common/treemodel.cpp
+        src/items/blocks/baseblock.cpp
         src/items/popup/popup.cpp
         src/items/widgets/dial.cpp
         src/items/widgets/textedit.cpp
         src/items/customitemfactory.cpp
         src/items/fancywire.cpp
-        src/items/operation.cpp
         src/items/operationconnector.cpp
         src/items/operationconstant.cpp
         src/items/operationdemo1.cpp

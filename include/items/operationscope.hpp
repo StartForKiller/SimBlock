@@ -1,12 +1,12 @@
 #pragma once
 
-#include <items/operation.hpp>
+#include <items/blocks/baseblock.hpp>
 
 namespace Scope {
     class ScopeWindow;
 }
 
-class OperationScope : public Operation {
+class OperationScope : public Blocks::BaseBlock {
     Q_OBJECT
     Q_DISABLE_COPY_MOVE(OperationScope)
 

@@ -5,6 +5,7 @@
 #include <QBoxLayout>
 
 using namespace Netlist;
+using namespace Blocks;
 
 Viewer::Viewer(QWidget *parent) :
     QWidget(parent)
@@ -19,7 +20,7 @@ Viewer::Viewer(QWidget *parent) :
     setLayout(layout);
 }
 
-void Viewer::setNetlist(const QSchematic::Netlist<Operation *, OperationConnector *> &netlist) {
+void Viewer::setNetlist(const QSchematic::Netlist<BaseBlock *, OperationConnector *> &netlist) {
     Q_ASSERT(_model);
     _model->setNetlist(netlist);
 }

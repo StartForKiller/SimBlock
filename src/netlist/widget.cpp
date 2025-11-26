@@ -1,6 +1,6 @@
 #include <netlist/widget.hpp>
 #include <netlist/viewer.hpp>
-#include <items/operation.hpp>
+#include <items/blocks/baseblock.hpp>
 #include <items/operationconnector.hpp>
 
 #include <qschematic/netlist_writer_json.hpp>
@@ -11,6 +11,7 @@
 #include <QTabWidget>
 
 using namespace Netlist;
+using namespace Blocks;
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent)
@@ -29,7 +30,7 @@ Widget::Widget(QWidget *parent) :
     setLayout(layout);
 }
 
-void Widget::setNetlist(const QSchematic::Netlist<Operation *, OperationConnector *> &netlist) {
+void Widget::setNetlist(const QSchematic::Netlist<BaseBlock *, OperationConnector *> &netlist) {
     m_memory_viewer->setNetlist(netlist);
 
     auto json = QSchematic::toJson(netlist);

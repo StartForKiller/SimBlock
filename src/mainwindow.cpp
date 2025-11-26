@@ -1,6 +1,6 @@
 #include <mainwindow.hpp>
 #include <items/customitemfactory.hpp>
-#include <items/operation.hpp>
+#include <items/blocks/baseblock.hpp>
 #include <items/operationconnector.hpp>
 #include <items/operationscope.hpp>
 #include <items/fancywire.hpp>
@@ -69,7 +69,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         }
     });
     connect(_scene, &QSchematic::Scene::netlistChanged, [this]() {
-        qDebug() << "Netlist changed";
+        //qDebug() << "Netlist changed";
 
         //generateNetlist();
     });
@@ -332,7 +332,7 @@ void MainWindow::settingsChanged() {
 }
 
 void MainWindow::generateNetlist() {
-    auto *netlist = new QSchematic::Netlist<Operation *, OperationConnector*>();
+    auto *netlist = new QSchematic::Netlist<Blocks::BaseBlock *, OperationConnector*>();
     QSchematic::NetlistGenerator::generate(*netlist, *_scene);
 
     _simulationWorker->setNetlist(netlist);

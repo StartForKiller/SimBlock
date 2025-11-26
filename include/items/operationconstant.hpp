@@ -1,8 +1,8 @@
 #pragma once
 
-#include <items/operation.hpp>
+#include <items/blocks/baseblock.hpp>
 
-class OperationConstant : public Operation {
+class OperationConstant : public Blocks::BaseBlock {
     Q_OBJECT
     Q_DISABLE_COPY_MOVE(OperationConstant)
 

@@ -19,7 +19,7 @@ struct ConnectorAttribute {
 };
 
 OperationConstant::OperationConstant(QGraphicsItem *parent) :
-    Operation(::ItemType::OperationConstantType, parent)
+    BaseBlock(::ItemType::OperationConstantType, parent)
 {
     setSize(40, 40);
     label()->setText(QStringLiteral("Constant"));
@@ -40,14 +40,14 @@ OperationConstant::OperationConstant(QGraphicsItem *parent) :
 gpds::container OperationConstant::to_container() const {
     gpds::container root;
     addItemTypeIdToContainer(root);
-    root.add_value("operation", Operation::to_container());
+    root.add_value("operation", BaseBlock::to_container());
     root.add_value("value", _constantValue);
 
     return root;
 }
 
 void OperationConstant::from_container(const gpds::container &container) {
-    Operation::from_container(*container.get_value<gpds::container *>("operation").value());
+    BaseBlock::from_container(*container.get_value<gpds::container *>("operation").value());
     _constantValue = container.get_value<double>("value").value();
 }
 
@@ -59,7 +59,7 @@ std::shared_ptr<QSchematic::Items::Item> OperationConstant::deepCopy() const {
 }
 
 void OperationConstant::copyAttributes(OperationConstant &dest) const {
-    Operation::copyAttributes(dest);
+    BaseBlock::copyAttributes(dest);
 
     dest._constantValue = _constantValue;
 }

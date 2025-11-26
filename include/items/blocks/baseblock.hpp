@@ -11,13 +11,15 @@ namespace QSchematic::Items {
     class Label;
 }
 
-class Operation : public QSchematic::Items::Node {
+namespace Blocks {
+
+class BaseBlock : public QSchematic::Items::Node {
     Q_OBJECT
-    Q_DISABLE_COPY_MOVE(Operation)
+    Q_DISABLE_COPY_MOVE(BaseBlock)
 
     public:
-        explicit Operation(int type = ::ItemType::OperationType, QGraphicsItem *parent = nullptr);
-        ~Operation() override;
+        explicit BaseBlock(int type = ::ItemType::BaseBlockType, QGraphicsItem *parent = nullptr);
+        ~BaseBlock() override;
 
         gpds::container to_container() const override;
         void from_container(const gpds::container &container) override;
@@ -35,8 +37,10 @@ class Operation : public QSchematic::Items::Node {
         virtual QVector<double> getSolverParams();
 
     protected:
-        void copyAttributes(Operation &dest) const;
+        void copyAttributes(BaseBlock &dest) const;
 
     private:
         std::shared_ptr<QSchematic::Items::Label> _label;
 };
+
+}
