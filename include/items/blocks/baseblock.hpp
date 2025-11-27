@@ -47,10 +47,9 @@ class BaseBlock : public QSchematic::Items::Node {
         QString description() const { return _description; }
 
         virtual Solver::BlockType getSolverBlockType() const;
-        virtual QVector<double> getSolverParams();
 
-        virtual void solveAlgebraic(const QVector<double> &in, QVector<double> &out, const QVector<double> &params, const QVector<double> &states);
-        virtual void solveDerivative(const QVector<double> &in, const QVector<double> &states, QVector<double> &dx, const QVector<double> &params);
+        virtual void solveAlgebraic(const QVector<Solver::Signal> &in, QVector<Solver::Signal> &out, const QVector<Solver::Signal> &states);
+        virtual void solveDerivative(const QVector<Solver::Signal> &in, const QVector<Solver::Signal> &states, QVector<Solver::Signal> &dx);
 
     protected:
         void copyAttributes(BaseBlock &dest) const;

@@ -17,7 +17,7 @@ class BlockDiv : public BaseBlock {
         std::shared_ptr<QSchematic::Items::Item> deepCopy() const override;
 
         Solver::BlockType getSolverBlockType() const override;
-        void solveAlgebraic(const QVector<double> &in, QVector<double> &out, const QVector<double> &params, const QVector<double> &states) override;
+        void solveAlgebraic(const QVector<Solver::Signal> &in, QVector<Solver::Signal> &out, const QVector<Solver::Signal> &states) override;
 
     private:
         void copyAttributes(BlockDiv &dest) const;

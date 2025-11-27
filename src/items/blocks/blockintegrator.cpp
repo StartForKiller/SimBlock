@@ -50,11 +50,11 @@ Solver::BlockType BlockIntegrator::getSolverBlockType() const {
     };
 }
 
-void BlockIntegrator::solveAlgebraic(const QVector<double> &in, QVector<double> &out, const QVector<double> &params, const QVector<double> &states) {
+void BlockIntegrator::solveAlgebraic(const QVector<Solver::Signal> &in, QVector<Solver::Signal> &out, const QVector<Solver::Signal> &states) {
     out[0] = states[0];
 }
 
-void BlockIntegrator::solveDerivative(const QVector<double> &in, const QVector<double> &states, QVector<double> &xdot, const QVector<double> &params) {
+void BlockIntegrator::solveDerivative(const QVector<Solver::Signal> &in, const QVector<Solver::Signal> &states, QVector<Solver::Signal> &xdot) {
     xdot[0] = in[0];
 }
 

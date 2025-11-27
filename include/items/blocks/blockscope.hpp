@@ -35,7 +35,7 @@ class BlockScope : public BaseBlock {
         void copyAttributes(BlockScope &dest) const;
 
     public slots:
-        void onNewSample(double t, QMap<QString, double> values);
+        void onNewSample(double t, QMap<QString, Solver::Signal> values);
         void onStartSimulation();
 };
 

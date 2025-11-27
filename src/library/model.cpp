@@ -42,11 +42,6 @@ void Model::createModel() {
     _rootItem->appendChild(rootOperations);
     endInsertRows();
 
-    auto rootFlows = new model_item(RootFlows, nullptr, _rootItem);
-    beginInsertRows(QModelIndex(), _rootItem->childCount(), _rootItem->childCount());
-    _rootItem->appendChild(rootFlows);
-    endInsertRows();
-
     auto rootBasics = new model_item(RootBasics, nullptr, _rootItem);
     beginInsertRows(QModelIndex(), _rootItem->childCount(), _rootItem->childCount());
     _rootItem->appendChild(rootBasics);
@@ -163,7 +158,7 @@ QVariant Model::data(const QModelIndex &index, int role) const  {
         case Model::RootOperations: {
             switch(role) {
                 case Qt::DisplayRole:
-                    return "Operations";
+                    return "Blocks";
 
                 default:
                     return {};
@@ -171,27 +166,6 @@ QVariant Model::data(const QModelIndex &index, int role) const  {
         }
 
         case Model::Operation: {
-            switch(role) {
-                case Qt::DisplayRole:
-                    Q_ASSERT(itemInfo);
-                    return itemInfo->name;
-
-                default:
-                    return {};
-            }
-        }
-
-        case Model::RootFlows: {
-            switch(role) {
-                case Qt::DisplayRole:
-                    return "Flows";
-
-                default:
-                    return {};
-            }
-        }
-
-        case Model::Flow: {
             switch(role) {
                 case Qt::DisplayRole:
                     Q_ASSERT(itemInfo);

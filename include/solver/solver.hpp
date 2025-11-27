@@ -7,6 +7,7 @@
 #include <QVector>
 #include <QMap>
 #include <functional>
+#include <variant>
 
 namespace Blocks {
     class BaseBlock;
@@ -16,14 +17,21 @@ namespace Blocks {
 using SignalID = int;
 namespace Solver {
 
+struct Signal {
+    using Scalar = double;
+    using Vector = QVector<double>;
+    using Bus = QMap<QString, double>;
+
+    std::variant<Scalar, Vector, Bus> data;
+};
+
 struct Block {
     Blocks::BaseBlock *node;
     QString name;
     QString type;
     QVector<SignalID> inputs;
     QVector<SignalID> outputs;
-    QVector<double> params;
-    QVector<double> states;
+    QVector<Signal> states;
 };
 
 struct BlockType {
@@ -41,18 +49,60 @@ class SolverBase {
         void setup(const QSchematic::Netlist<Blocks::BaseBlock *, Blocks::BaseBlockConnector *> &netlist);
         void solve_step(double timestep);
 
-        QMap<QString, double> getOutputValues();
+        QMap<QString, Signal> getOutputValues();
 
     private:
         void evaluateAlgebraic();
-        void f_global(const QMap<QString, QVector<double>> &y, QMap<QString, QVector<double>> &xdot);
-        void ode4_step(QMap<QString, QVector<double>> &y, double dt);
+        void f_global(const QMap<QString, QVector<Signal>> &y, QMap<QString, QVector<Signal>> &xdot);
+        void ode4_step(QMap<QString, QVector<Signal>> &y, double dt);
 
         QMap<QString, SignalID> _signalMap;
-        QVector<double> _signals;
+        QVector<Signal> _signals;
         QMap<QString, BlockType> _blockTypes;
         QVector<Block> _blocks;
-        QMap<QString, QVector<double>> _y;
+        QMap<QString, QVector<Signal>> _y;
 };
+
+inline Signal make_signal(double x) {
+    Signal s;
+    s.data = x;
+    return s;
+}
+
+inline bool isScalar(const Signal& s) {
+    return std::holds_alternative<Signal::Scalar>(s.data);
+}
+
+inline bool isVector(const Signal& s) {
+    return std::holds_alternative<Signal::Vector>(s.data);
+}
+
+inline bool isBus(const Signal& s) {
+    return std::holds_alternative<Signal::Bus>(s.data);
+}
+
+Signal operator*(const Signal &a, const Signal &b);
+inline Signal operator*(const Signal& s, double k) {
+    return s * make_signal(k);
+}
+
+inline Signal operator*(double k, const Signal& s) {
+    return make_signal(k) * s;
+}
+
+Signal operator/(const Signal &a, const Signal &b);
+inline Signal operator/(const Signal& s, double k) {
+    return s / make_signal(k);
+}
+
+inline Signal operator/(double k, const Signal& s) {
+    return make_signal(k) / s;
+}
+
+Signal operator+(const Signal &a, const Signal &b);
+inline Signal& operator+=(Signal& s, const Signal& other) {
+    s = s + other;
+    return s;
+}
 
 }

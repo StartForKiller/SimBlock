@@ -71,7 +71,7 @@ void BlockScope::setInputNetName(QString name) {
 
 void BlockScope::generateScopeWindow() {
     if(_scopeWindow == nullptr) {
-        _scopeWindow = new Scope::ScopeWindow(QStringLiteral("Scope"));
+        _scopeWindow = new Scope::ScopeWindow(text());
     }
 }
 
@@ -86,7 +86,7 @@ void BlockScope::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) {
     BaseBlock::Node::mouseDoubleClickEvent(event);
 }
 
-void BlockScope::onNewSample(double t, QMap<QString, double> values) {
+void BlockScope::onNewSample(double t, QMap<QString, Solver::Signal> values) {
     generateScopeWindow();
 
     if(values.contains(_netName)) {

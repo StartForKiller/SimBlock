@@ -17,8 +17,8 @@ class BlockIntegrator : public BaseBlock {
         std::shared_ptr<QSchematic::Items::Item> deepCopy() const override;
 
         Solver::BlockType getSolverBlockType() const override;
-        void solveAlgebraic(const QVector<double> &in, QVector<double> &out, const QVector<double> &params, const QVector<double> &states) override;
-        void solveDerivative(const QVector<double> &in, const QVector<double> &states, QVector<double> &dx, const QVector<double> &params) override;
+        void solveAlgebraic(const QVector<Solver::Signal> &in, QVector<Solver::Signal> &out, const QVector<Solver::Signal> &states) override;
+        void solveDerivative(const QVector<Solver::Signal> &in, const QVector<Solver::Signal> &states, QVector<Solver::Signal> &dx) override;
 
     private:
         void copyAttributes(BlockIntegrator &dest) const;

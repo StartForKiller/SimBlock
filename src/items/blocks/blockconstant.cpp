@@ -74,6 +74,6 @@ Solver::BlockType BlockConstant::getSolverBlockType() const {
     };
 }
 
-void BlockConstant::solveAlgebraic(const QVector<double> &in, QVector<double> &out, const QVector<double> &params, const QVector<double> &states) {
-    out[0] = _constantValue;
+void BlockConstant::solveAlgebraic(const QVector<Solver::Signal> &in, QVector<Solver::Signal> &out, const QVector<Solver::Signal> &states) {
+    out[0] = Solver::make_signal(_constantValue);
 }

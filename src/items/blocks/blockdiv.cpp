@@ -51,7 +51,7 @@ Solver::BlockType BlockDiv::getSolverBlockType() const {
     };
 }
 
-void BlockDiv::solveAlgebraic(const QVector<double> &in, QVector<double> &out, const QVector<double> &params, const QVector<double> &states) {
+void BlockDiv::solveAlgebraic(const QVector<Solver::Signal> &in, QVector<Solver::Signal> &out, const QVector<Solver::Signal> &states) {
     out[0] = in[0] / in[1];
 }
 

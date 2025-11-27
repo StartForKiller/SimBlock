@@ -20,8 +20,6 @@ class Model : public QAbstractItemModel {
             Root,
             RootOperations,
             Operation,
-            RootFlows,
-            Flow,
             RootBasics,
             Basic,
             RootWidgets,

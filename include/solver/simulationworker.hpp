@@ -12,6 +12,7 @@ namespace Blocks {
 namespace Solver {
 
 class SolverBase;
+struct Signal;
 
 class SimulationWorker : public QObject {
     Q_OBJECT
@@ -25,7 +26,7 @@ class SimulationWorker : public QObject {
         void simulate();
 
     signals:
-        void sampleGenerated(double t, QMap<QString, double> values);
+        void sampleGenerated(double t, QMap<QString, Signal> values);
         void simulationFinished();
 
     private:

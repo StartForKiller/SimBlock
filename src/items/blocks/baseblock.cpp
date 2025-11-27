@@ -293,15 +293,11 @@ Solver::BlockType BaseBlock::getSolverBlockType() const {
     };
 }
 
-QVector<double> BaseBlock::getSolverParams() {
-    return QVector<double>();
-}
-
-void BaseBlock::solveAlgebraic(const QVector<double> &in, QVector<double> &out, const QVector<double> &params, const QVector<double> &states) {
+void BaseBlock::solveAlgebraic(const QVector<Solver::Signal> &in, QVector<Solver::Signal> &out, const QVector<Solver::Signal> &states) {
 
 }
 
-void BaseBlock::solveDerivative(const QVector<double> &in, const QVector<double> &states, QVector<double> &dx, const QVector<double> &params) {
+void BaseBlock::solveDerivative(const QVector<Solver::Signal> &in, const QVector<Solver::Signal> &states, QVector<Solver::Signal> &dx) {
 
 }
 

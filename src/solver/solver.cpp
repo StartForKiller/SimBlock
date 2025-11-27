@@ -26,8 +26,7 @@ void SolverBase::setup(const QSchematic::Netlist<BaseBlock *, BaseBlockConnector
                 node->text(),
                 blocktype.name,
                 QVector<SignalID>(blocktype.numInputs),
-                QVector<SignalID>(blocktype.numOutputs),
-                node->getSolverParams()
+                QVector<SignalID>(blocktype.numOutputs)
             });
 
             if(!_blockTypes.contains(blocktype.name))
@@ -44,7 +43,7 @@ void SolverBase::setup(const QSchematic::Netlist<BaseBlock *, BaseBlockConnector
         for(const auto &net : netlist.nets) {
             _signalMap[net.name] = nextID++;
         }
-        _signals.resize(nextID, 0.0);
+        _signals.resize(nextID, make_signal(0.0));
     }
 
     //Wire Blocks
@@ -85,12 +84,12 @@ void SolverBase::setup(const QSchematic::Netlist<BaseBlock *, BaseBlockConnector
         _y[blk.name].clear();
 
         auto &type = _blockTypes[blk.type];
-        _y[blk.name].resize(type.numStates, 0.0);
+        _y[blk.name].resize(type.numStates, make_signal(0.0));
     }
 }
 
-QMap<QString, double> SolverBase::getOutputValues() {
-    QMap<QString, double> output;
+QMap<QString, Signal> SolverBase::getOutputValues() {
+    QMap<QString, Signal> output;
 
     for(auto &blk : _blocks) {
         for(auto outSignal : blk.outputs) {
@@ -110,15 +109,15 @@ void SolverBase::evaluateAlgebraic() {
     for(auto &blk : _blocks) {
         auto &type = _blockTypes[blk.type];
 
-        QVector<double> in(type.numInputs);
-        QVector<double> out(type.numOutputs);
+        QVector<Signal> in(type.numInputs);
+        QVector<Signal> out(type.numOutputs);
 
         for(int i = 0; i < type.numInputs; i++) {
             int inSignal = blk.inputs[i];
             if(inSignal >= 0) in[i] = _signals[inSignal];
         }
 
-        blk.node->solveAlgebraic(in, out, blk.params, blk.states);
+        blk.node->solveAlgebraic(in, out, blk.states);
 
         for(int i = 0; i < type.numOutputs; i++) {
             int outSignal = blk.outputs[i];
@@ -127,7 +126,7 @@ void SolverBase::evaluateAlgebraic() {
     }
 }
 
-void SolverBase::f_global(const QMap<QString, QVector<double>> &y, QMap<QString, QVector<double>> &xdot) {
+void SolverBase::f_global(const QMap<QString, QVector<Signal>> &y, QMap<QString, QVector<Signal>> &xdot) {
     for(auto &blk : const_cast<QVector<Block> &>(_blocks)) {
         int idx = 0;
         auto &type = _blockTypes[blk.type];
@@ -143,25 +142,25 @@ void SolverBase::f_global(const QMap<QString, QVector<double>> &y, QMap<QString,
         auto &type = _blockTypes[blk.type];
         if(type.numStates == 0) continue;
 
-        QVector<double> in(type.numInputs);
-        QVector<double> dx(type.numStates);
+        QVector<Signal> in(type.numInputs);
+        QVector<Signal> dx(type.numStates);
 
         for(int i = 0; i < type.numInputs; i++) {
             int inSignal = blk.inputs[i];
             if(inSignal >= 0) in[i] = _signals[inSignal];
         }
 
-        blk.node->solveDerivative(in, blk.states, dx, blk.params);
+        blk.node->solveDerivative(in, blk.states, dx);
 
-        for(double d : dx) {
+        for(Signal d : dx) {
             int idx = 0;
             xdot[blk.name].push_back(d);
         }
     }
 }
 
-void SolverBase::ode4_step(QMap<QString, QVector<double>> &y, double dt) {
-    QMap<QString, QVector<double>> xtmp, k1, k2, k3, k4;
+void SolverBase::ode4_step(QMap<QString, QVector<Signal>> &y, double dt) {
+    QMap<QString, QVector<Signal>> xtmp, k1, k2, k3, k4;
 
     for(auto &blk : _blocks) {
         int n = y[blk.name].size();
@@ -196,4 +195,157 @@ void SolverBase::ode4_step(QMap<QString, QVector<double>> &y, double dt) {
         for(int i = 0; i < n; i++)
             y[blk.name][i] += (dt/6.0) * (k1[blk.name][i] + 2.0*k2[blk.name][i] + 2.0*k3[blk.name][i] + k4[blk.name][i]);
     }
+}
+
+Signal Solver::operator*(const Signal &a, const Signal &b) {
+    Signal result;
+
+    if (isScalar(a) && isScalar(b)) {
+        result.data = std::get<double>(a.data) * std::get<double>(b.data);
+        return result;
+    }
+
+    if (isScalar(a) && isVector(b)) {
+        double k = std::get<double>(a.data);
+        auto vec = std::get<QVector<double>>(b.data);
+        for (auto& v : vec) v *= k;
+        result.data = vec;
+        return result;
+    }
+
+    if (isVector(a) && isVector(b)) {
+        auto va = std::get<QVector<double>>(a.data);
+        auto vb = std::get<QVector<double>>(b.data);
+
+        if (va.size() != vb.size())
+            throw std::runtime_error("Signal: vector×vector size mismatch");
+
+        for (size_t i = 0; i < va.size(); i++)
+            va[i] *= vb[i];
+
+        result.data = va;
+        return result;
+    }
+
+    if (isBus(a) && isBus(b)) {
+        auto ba = std::get<Signal::Bus>(a.data);
+        auto bb = std::get<Signal::Bus>(b.data);
+
+        if (ba.size() != bb.size())
+            throw std::runtime_error("Signal: bus×bus size mismatch");
+
+        Signal::Bus out;
+        for (auto [key, va] : ba.asKeyValueRange()) {
+            if (!bb.contains(key))
+                throw std::runtime_error("Signal: bus×bus missing key " + key.toStdString());
+            out[key] = va * bb[key];
+        }
+
+        result.data = out;
+        return result;
+    }
+
+    throw std::runtime_error("Signal operator*: unsupported operand types");
+}
+
+Signal Solver::operator/(const Signal &a, const Signal &b) {
+    Signal result;
+
+    if (isScalar(a) && isScalar(b)) {
+        result.data = std::get<double>(a.data) / std::get<double>(b.data);
+        return result;
+    }
+
+    if (isScalar(a) && isVector(b)) {
+        double k = std::get<double>(a.data);
+        auto vec = std::get<QVector<double>>(b.data);
+        for (auto& v : vec) v /= k;
+        result.data = vec;
+        return result;
+    }
+
+    if (isVector(a) && isVector(b)) {
+        auto va = std::get<QVector<double>>(a.data);
+        auto vb = std::get<QVector<double>>(b.data);
+
+        if (va.size() != vb.size())
+            throw std::runtime_error("Signal: vector×vector size mismatch");
+
+        for (size_t i = 0; i < va.size(); i++)
+            va[i] /= vb[i];
+
+        result.data = va;
+        return result;
+    }
+
+    if (isBus(a) && isBus(b)) {
+        auto ba = std::get<Signal::Bus>(a.data);
+        auto bb = std::get<Signal::Bus>(b.data);
+
+        if (ba.size() != bb.size())
+            throw std::runtime_error("Signal: bus×bus size mismatch");
+
+        Signal::Bus out;
+        for (auto [key, va] : ba.asKeyValueRange()) {
+            if (!bb.contains(key))
+                throw std::runtime_error("Signal: bus×bus missing key " + key.toStdString());
+            out[key] = va / bb[key];
+        }
+
+        result.data = out;
+        return result;
+    }
+
+    throw std::runtime_error("Signal operator*: unsupported operand types");
+}
+
+Signal Solver::operator+(const Signal &a, const Signal &b) {
+    Signal result;
+
+    if (isScalar(a) && isScalar(b)) {
+        result.data = std::get<double>(a.data) + std::get<double>(b.data);
+        return result;
+    }
+
+    if (isScalar(a) && isVector(b)) {
+        double k = std::get<double>(a.data);
+        auto vec = std::get<QVector<double>>(b.data);
+        for (auto& v : vec) v += k;
+        result.data = vec;
+        return result;
+    }
+
+    if (isVector(a) && isVector(b)) {
+        auto va = std::get<QVector<double>>(a.data);
+        auto vb = std::get<QVector<double>>(b.data);
+
+        if (va.size() != vb.size())
+            throw std::runtime_error("Signal: vector×vector size mismatch");
+
+        for (size_t i = 0; i < va.size(); i++)
+            va[i] += vb[i];
+
+        result.data = va;
+        return result;
+    }
+
+    if (isBus(a) && isBus(b)) {
+        auto ba = std::get<Signal::Bus>(a.data);
+        auto bb = std::get<Signal::Bus>(b.data);
+
+        if (ba.size() != bb.size())
+            throw std::runtime_error("Signal: bus×bus size mismatch");
+
+        Signal::Bus out;
+        for (auto [key, va] : ba.asKeyValueRange()) {
+            if (!bb.contains(key))
+                throw std::runtime_error("Signal: bus×bus missing key " + key.toStdString());
+            out[key] = va + bb[key];
+        }
+
+        result.data = out;
+        return result;
+    }
+
+    throw std::runtime_error("Signal operator*: unsupported operand types");
 }

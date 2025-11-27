@@ -5,6 +5,10 @@
 class QCustomPlot;
 class QCPGraph;
 
+namespace Solver {
+    struct Signal;
+};
+
 namespace Scope {
 
 class ScopeWindow : public QMainWindow {
@@ -20,7 +24,7 @@ class ScopeWindow : public QMainWindow {
         QCPGraph *_graph;
 
     public slots:
-        void onNewSample(double t, double value);
+        void onNewSample(double t, Solver::Signal value);
         void onStartSimulation();
 };
 

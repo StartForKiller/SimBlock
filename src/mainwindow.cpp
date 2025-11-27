@@ -151,7 +151,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     _simulationWorker = new Solver::SimulationWorker();
     _simulationWorker->moveToThread(_simulationWorkerThread);
 
-    connect(_simulationWorker, &Solver::SimulationWorker::sampleGenerated, this, [this](double t, QMap<QString, double> values) {
+    connect(_simulationWorker, &Solver::SimulationWorker::sampleGenerated, this, [this](double t, QMap<QString, Solver::Signal> values) {
         for(const auto& node : _scene->nodes()) {
             if(!node) continue;
 
