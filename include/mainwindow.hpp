@@ -48,6 +48,10 @@ class MainWindow : public QMainWindow {
         void createActions();
         void main();
 
+    public:
+        static MainWindow *instance();
+        QSchematic::Scene *scene();
+
     private:
         void settingsChanged();
         void generateNetlist();
@@ -71,11 +75,16 @@ class MainWindow : public QMainWindow {
         QAction *_actionFitAll = nullptr;
         QAction *_actionRouteStraightAngles = nullptr;
         QAction *_actionGenerateNetlist = nullptr;
-        QAction *_actionSolve = nullptr;
         QAction *_actionClear = nullptr;
         QAction *_actionDebugMode = nullptr;
+
+        QAction *_actionSolve = nullptr;
+        QAction *_actionTimeStep = nullptr;
+        QAction *_actionTimeToSimulate = nullptr;
 
         bool _simulating = false;
         QThread* _simulationWorkerThread;
         Solver::SimulationWorker *_simulationWorker = nullptr;
+        double _timeStep = 0.01;
+        double _timeToSimulate = 5.0;
 };

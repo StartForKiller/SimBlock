@@ -10,7 +10,7 @@ SimulationWorker::SimulationWorker(QObject *parent) :
     _solver = new Solver::SolverBase();
 }
 
-void SimulationWorker::setNetlist(QSchematic::Netlist<BaseBlock *, OperationConnector *> *netlist) {
+void SimulationWorker::setNetlist(QSchematic::Netlist<BaseBlock *, BaseBlockConnector *> *netlist) {
     _netlist = netlist;
 }
 

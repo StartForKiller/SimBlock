@@ -1,5 +1,5 @@
-#include <items/operationscope.hpp>
-#include <items/operationconnector.hpp>
+#include <items/blocks/blockscope.hpp>
+#include <items/blocks/baseblockconnector.hpp>
 #include <items/itemtypes.hpp>
 #include <scope/scopewindow.hpp>
 
@@ -16,31 +16,22 @@
 
 using namespace Blocks;
 
-struct ConnectorAttribute {
-    QPoint point;
-    QString name;
-};
-
-OperationScope::OperationScope(QGraphicsItem *parent) :
-    BaseBlock(::ItemType::OperationScopeType, parent)
+BlockScope::BlockScope(QGraphicsItem *parent) :
+    BaseBlock(::ItemType::BlockScopeType, parent)
 {
     setSize(80, 80);
     label()->setText(QStringLiteral("Scope"));
 
     QVector<ConnectorAttribute> connectorAttributes = {
-        { QPoint(0, 2), QStringLiteral("in") }
+        { true, 0, QPoint(0, 2), QStringLiteral("in") }
     };
 
     //setConnectorsMovable(false);
 
-    for(const auto &c : connectorAttributes) {
-        auto connector = std::make_shared<OperationConnector>(c.point, c.name);
-        connector->label()->setVisible(false);
-        addConnector(connector);
-    }
+    setupConnectors(connectorAttributes);
 }
 
-gpds::container OperationScope::to_container() const {
+gpds::container BlockScope::to_container() const {
     gpds::container root;
     addItemTypeIdToContainer(root);
     root.add_value("operation", BaseBlock::to_container());
@@ -48,45 +39,42 @@ gpds::container OperationScope::to_container() const {
     return root;
 }
 
-void OperationScope::from_container(const gpds::container &container) {
+void BlockScope::from_container(const gpds::container &container) {
     BaseBlock::from_container(*container.get_value<gpds::container *>("operation").value());
 }
 
-std::shared_ptr<QSchematic::Items::Item> OperationScope::deepCopy() const {
-    auto clone = std::make_shared<OperationScope>(parentItem());
+std::shared_ptr<QSchematic::Items::Item> BlockScope::deepCopy() const {
+    auto clone = std::make_shared<BlockScope>(parentItem());
     copyAttributes(*clone);
 
     return clone;
 }
 
-void OperationScope::copyAttributes(OperationScope &dest) const {
+void BlockScope::copyAttributes(BlockScope &dest) const {
     BaseBlock::copyAttributes(dest);
 }
 
-Solver::BlockType OperationScope::getSolverBlockType() {
+Solver::BlockType BlockScope::getSolverBlockType() const {
     using namespace std::placeholders;
     return {
         QStringLiteral("scope"),
         1, //Inputs
         0, //Outputs
-        0, //States
-
-        nullptr,
-        nullptr
+        0  //States
     };
 }
 
-void OperationScope::setInputNetName(QString name) {
+void BlockScope::setInputNetName(QString name) {
     _netName = name;
 }
 
-void OperationScope::generateScopeWindow() {
+void BlockScope::generateScopeWindow() {
     if(_scopeWindow == nullptr) {
         _scopeWindow = new Scope::ScopeWindow(QStringLiteral("Scope"));
     }
 }
 
-void OperationScope::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) {
+void BlockScope::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) {
     generateScopeWindow();
 
     _scopeWindow->raise();
@@ -97,7 +85,7 @@ void OperationScope::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) {
     BaseBlock::Node::mouseDoubleClickEvent(event);
 }
 
-void OperationScope::onNewSample(double t, QMap<QString, double> values) {
+void BlockScope::onNewSample(double t, QMap<QString, double> values) {
     generateScopeWindow();
 
     if(values.contains(_netName)) {
@@ -105,7 +93,7 @@ void OperationScope::onNewSample(double t, QMap<QString, double> values) {
     }
 }
 
-void OperationScope::onStartSimulation() {
+void BlockScope::onStartSimulation() {
     generateScopeWindow();
 
     _netName = QStringLiteral("");

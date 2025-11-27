@@ -1,0 +1,12 @@
+target_sources(
+    ${target}
+    PRIVATE
+        baseblock.cpp
+        baseblockconnector.cpp
+        blockconstant.cpp
+        blockdiv.cpp
+        blockgain.cpp
+        blockintegrator.cpp
+        blockscope.cpp
+        blocksum.cpp
+)

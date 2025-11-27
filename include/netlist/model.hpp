@@ -6,9 +6,8 @@
 
 namespace Blocks {
     class BaseBlock;
+    class BaseBlockConnector;
 };
-
-class OperationConnector;
 
 namespace Netlist {
 
@@ -20,7 +19,7 @@ class Model : public TreeModel {
         explicit Model(QObject *parent = nullptr);
         ~Model() override = default;
 
-        void setNetlist(const QSchematic::Netlist<Blocks::BaseBlock *, OperationConnector *> &netlist);
+        void setNetlist(const QSchematic::Netlist<Blocks::BaseBlock *, Blocks::BaseBlockConnector *> &netlist);
 
     private:
         [[nodiscard]] QString pointerToString(const void *ptr);

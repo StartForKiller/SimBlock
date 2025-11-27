@@ -1,7 +1,5 @@
 #pragma once
 
-using SignalID = int;
-
 #include <qschematic/netlist.hpp>
 
 
@@ -12,17 +10,18 @@ using SignalID = int;
 
 namespace Blocks {
     class BaseBlock;
+    class BaseBlockConnector;
 };
 
-class OperationConnector;
-
+using SignalID = int;
 namespace Solver {
 
 struct Block {
+    Blocks::BaseBlock *node;
     QString name;
     QString type;
-    QMap<QString, SignalID> inputs;
-    QMap<QString, SignalID> outputs;
+    QVector<SignalID> inputs;
+    QVector<SignalID> outputs;
     QVector<double> params;
     QVector<double> states;
 };
@@ -32,16 +31,6 @@ struct BlockType {
     int numInputs;
     int numOutputs;
     int numStates;
-
-    std::function<void(const QMap<QString, double> &,
-                       QMap<QString, double> &,
-                       const QVector<double> &,
-                       const QVector<double> &)> algebraic;
-
-    std::function<void(const QMap<QString, double> &,
-                       const QVector<double> &,
-                       QVector<double> &,
-                       const QVector<double> &)> derivative;
 };
 
 class SolverBase {
@@ -49,7 +38,7 @@ class SolverBase {
         explicit SolverBase();
         virtual ~SolverBase();
 
-        void setup(const QSchematic::Netlist<Blocks::BaseBlock *, OperationConnector *> &netlist);
+        void setup(const QSchematic::Netlist<Blocks::BaseBlock *, Blocks::BaseBlockConnector *> &netlist);
         void solve_step(double timestep);
 
         QMap<QString, double> getOutputValues();

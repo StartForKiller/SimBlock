@@ -6,9 +6,8 @@
 
 namespace Blocks {
     class BaseBlock;
+    class BaseBlockConnector;
 };
-
-class OperationConnector;
 
 class QPlainTextEdit;
 
@@ -24,7 +23,7 @@ class Widget : public QWidget {
         Widget(QWidget *parent = nullptr);
         ~Widget() override = default;
 
-        void setNetlist(const QSchematic::Netlist<Blocks::BaseBlock *, OperationConnector *> &netlist);
+        void setNetlist(const QSchematic::Netlist<Blocks::BaseBlock *, Blocks::BaseBlockConnector *> &netlist);
 
     private:
         Viewer *m_memory_viewer = nullptr;

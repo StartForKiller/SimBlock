@@ -6,19 +6,21 @@ namespace Scope {
     class ScopeWindow;
 }
 
-class OperationScope : public Blocks::BaseBlock {
+namespace Blocks {
+
+class BlockScope : public BaseBlock {
     Q_OBJECT
-    Q_DISABLE_COPY_MOVE(OperationScope)
+    Q_DISABLE_COPY_MOVE(BlockScope)
 
     public:
-        explicit OperationScope(QGraphicsItem *parent = nullptr);
-        ~OperationScope() override = default;
+        explicit BlockScope(QGraphicsItem *parent = nullptr);
+        ~BlockScope() override = default;
 
         gpds::container to_container() const override;
         void from_container(const gpds::container &container) override;
         std::shared_ptr<QSchematic::Items::Item> deepCopy() const override;
 
-        Solver::BlockType getSolverBlockType() override;
+        Solver::BlockType getSolverBlockType() const override;
 
         void setInputNetName(QString name);
         void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) override;
@@ -30,9 +32,11 @@ class OperationScope : public Blocks::BaseBlock {
 
         QString _netName;
 
-        void copyAttributes(OperationScope &dest) const;
+        void copyAttributes(BlockScope &dest) const;
 
     public slots:
         void onNewSample(double t, QMap<QString, double> values);
         void onStartSimulation();
 };
+
+}

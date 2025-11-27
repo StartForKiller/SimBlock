@@ -1,7 +1,9 @@
 #include <items/blocks/baseblock.hpp>
-#include <items/operationconnector.hpp>
-#include <items/popup/popup_operation.hpp>
+#include <items/blocks/baseblockconnector.hpp>
+#include <items/popup/popup_baseblock.hpp>
 #include <commands/node_add_connector.hpp>
+
+#include <mainwindow.hpp>
 
 #include <qschematic/scene.hpp>
 #include <qschematic/items/label.hpp>
@@ -82,7 +84,7 @@ std::shared_ptr<QSchematic::Items::Item> BaseBlock::deepCopy() const {
 }
 
 std::unique_ptr<QWidget> BaseBlock::popup() const {
-    return std::make_unique<PopupOperation>(*this);
+    return std::make_unique<PopupBaseBlock>(*this);
 }
 
 void BaseBlock::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
@@ -143,6 +145,8 @@ void BaseBlock::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) {
             if(!ok)
                 return;
 
+            if(nameIsInUse(newText)) return;
+
             scene()->undoStack()->push(new QSchematic::Commands::LabelRename(label().get(), newText));
         });
 
@@ -187,16 +191,16 @@ void BaseBlock::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) {
                 scene()->undoStack()->push(new QSchematic::Commands::ItemVisibility(conn, true));
         });
 
-        QAction *newConnector = new QAction;
-        newConnector->setText("Add connector");
-        connect(newConnector, &QAction::triggered, [this, event] {
-            if(!scene())
-                return;
+        //QAction *newConnector = new QAction;
+        //newConnector->setText("Add connector");
+        //connect(newConnector, &QAction::triggered, [this, event] {
+        //    if(!scene())
+        //        return;
 
-            auto connector = std::make_shared<OperationConnector>(event->pos().toPoint(), QStringLiteral("Unnamed"), this);
+        //    auto connector = std::make_shared<BaseBlockConnector>(event->pos().toPoint(), QStringLiteral("Unnamed"), this);
 
-            scene()->undoStack()->push(new ::Commands::NodeAddConnector(this, connector));
-        });
+        //    scene()->undoStack()->push(new ::Commands::NodeAddConnector(this, connector));
+        //});
 
         QAction *duplicate = new QAction;
         duplicate->setText("Duplicate");
@@ -232,7 +236,7 @@ void BaseBlock::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) {
         menu.addAction(labelVisibility);
         menu.addAction(alignLabel);
         menu.addSeparator();
-        menu.addAction(newConnector);
+        //menu.addAction(newConnector);
         menu.addAction(alignConnectorLabels);
         menu.addAction(showAllConnectors);
         menu.addSeparator();
@@ -272,15 +276,12 @@ QString BaseBlock::text() const {
     return _label->text();
 }
 
-Solver::BlockType BaseBlock::getSolverBlockType() {
+Solver::BlockType BaseBlock::getSolverBlockType() const {
     return {
         QStringLiteral("Base"),
         0,
         0,
-        0,
-
-        nullptr, //Algebraic
-        nullptr //Derivative
+        0
     };
 }
 
@@ -288,9 +289,55 @@ QVector<double> BaseBlock::getSolverParams() {
     return QVector<double>();
 }
 
+void BaseBlock::solveAlgebraic(const QVector<double> &in, QVector<double> &out, const QVector<double> &params, const QVector<double> &states) {
+
+}
+
+void BaseBlock::solveDerivative(const QVector<double> &in, const QVector<double> &states, QVector<double> &dx, const QVector<double> &params) {
+
+}
+
 void BaseBlock::copyAttributes(BaseBlock &dest) const {
     QSchematic::Items::Node::copyAttributes(dest);
 
     dest._label = std::dynamic_pointer_cast<QSchematic::Items::Label>(_label->deepCopy());
     dest._label->setParentItem(&dest);
+    dest._label->setText(getUnusedName(dest._label->text()));
+}
+
+QString BaseBlock::getUnusedName(QString baseName) const {
+    if(!nameIsInUse(baseName)) return baseName;
+
+    QString returnName = QStringLiteral("%1 %2").arg(baseName, "%1");
+    for(int i = 0; ; i++) {
+        auto newName = returnName.arg(i);
+        if(!nameIsInUse(newName)) return newName;
+    }
+}
+
+bool BaseBlock::nameIsInUse(QString name) const {
+    auto _instance = MainWindow::instance();
+    if(!_instance)
+        return false;
+
+    auto _scene = _instance->scene();
+    if(!_scene)
+        return false;
+
+    for(auto &node : _scene->nodes()) {
+        auto baseNode = dynamic_cast<BaseBlock *>(node.get());
+        if(baseNode == nullptr) continue;
+
+        if(baseNode->text() == name) return true;
+    }
+
+    return false;
+}
+
+void BaseBlock::setupConnectors(QVector<BaseBlock::ConnectorAttribute> &connectorAttributes) {
+    for(const auto &c : connectorAttributes) {
+        auto connector = std::make_shared<BaseBlockConnector>(c.point, c.name, c.input, c.index);
+        connector->label()->setVisible(false);
+        addConnector(connector);
+    }
 }

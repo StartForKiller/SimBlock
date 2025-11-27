@@ -1,24 +1,24 @@
 #pragma once
 
 #include <items/popup/popup.hpp>
-#include <items/operationconnector.hpp>
+#include <items/blocks/baseblockconnector.hpp>
 
 #include <qschematic/items/label.hpp>
 
 #include <QFormLayout>
 #include <QLabel>
 
-class PopupConnector : public Popup {
+class PopupBaseBlockConnector : public Popup {
     Q_OBJECT
-    Q_DISABLE_COPY_MOVE(PopupConnector)
+    Q_DISABLE_COPY_MOVE(PopupBaseBlockConnector)
 
     public:
-        explicit PopupConnector(const OperationConnector &conn) {
+        explicit PopupBaseBlockConnector(const Blocks::BaseBlockConnector &conn) {
             auto layout = new QFormLayout;
             layout->addRow("Type:", new QLabel("Connector"));
             layout->addRow("Name:", new QLabel(conn.label()->text()));
             setLayout(layout);
         }
 
-        ~PopupConnector() noexcept override = default;
+        ~PopupBaseBlockConnector() noexcept override = default;
 };

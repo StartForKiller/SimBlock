@@ -1,9 +1,14 @@
 #include <items/itemtypes.hpp>
 #include <items/blocks/baseblock.hpp>
-#include <items/operationconnector.hpp>
-#include <items/operationconstant.hpp>
-#include <items/operationdemo1.hpp>
-#include <items/operationscope.hpp>
+#include <items/blocks/baseblockconnector.hpp>
+
+#include <items/blocks/blockconstant.hpp>
+#include <items/blocks/blockintegrator.hpp>
+#include <items/blocks/blockscope.hpp>
+#include <items/blocks/blockgain.hpp>
+#include <items/blocks/blocksum.hpp>
+#include <items/blocks/blockdiv.hpp>
+
 #include <items/customitemfactory.hpp>
 #include <items/fancywire.hpp>
 #include <items/widgets/dial.hpp>
@@ -11,24 +16,35 @@
 
 #include <qschematic/items/itemfactory.hpp>
 
+using namespace Blocks;
+
 std::shared_ptr<QSchematic::Items::Item> CustomItemFactory::from_container(const gpds::container &container) {
     QSchematic::Items::Item::ItemType type = QSchematic::Items::Factory::extractType(container);
 
     switch(static_cast<ItemType>(type)) {
         case ItemType::BaseBlockType:
-            return std::make_shared<Blocks::BaseBlock>();
+            return std::make_shared<BaseBlock>();
 
-        case ItemType::OperationConnectorType:
-            return std::make_shared<OperationConnector>();
+        case ItemType::BaseBlockConnectorType:
+            return std::make_shared<BaseBlockConnector>();
 
-        case ItemType::OperationDemo1Type:
-            return std::make_shared<OperationDemo1>();
+        case ItemType::BlockIntegratorType:
+            return std::make_shared<BlockIntegrator>();
 
-        case ItemType::OperationConstantType:
-            return std::make_shared<OperationConstant>();
+        case ItemType::BlockConstantType:
+            return std::make_shared<BlockConstant>();
 
-        case ItemType::OperationScopeType:
-            return std::make_shared<OperationScope>();
+        case ItemType::BlockScopeType:
+            return std::make_shared<BlockScope>();
+
+        case ItemType::BlockGainType:
+            return std::make_shared<BlockGain>();
+
+        case ItemType::BlockSumType:
+            return std::make_shared<BlockSum>();
+
+        case ItemType::BlockDivType:
+            return std::make_shared<BlockDiv>();
 
         case ItemType::FancyWireType:
             return std::make_shared<FancyWire>();

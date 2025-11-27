@@ -1,8 +1,13 @@
 #include <library/model.hpp>
 #include <library/iteminfo.hpp>
-#include <items/operationconstant.hpp>
-#include <items/operationdemo1.hpp>
-#include <items/operationscope.hpp>
+
+#include <items/blocks/blockconstant.hpp>
+#include <items/blocks/blockintegrator.hpp>
+#include <items/blocks/blockscope.hpp>
+#include <items/blocks/blockgain.hpp>
+#include <items/blocks/blocksum.hpp>
+#include <items/blocks/blockdiv.hpp>
+
 #include <items/widgets/dial.hpp>
 #include <items/widgets/textedit.hpp>
 
@@ -54,9 +59,12 @@ void Model::createModel() {
 
     //TODO
 
-    addTreeItem("Demo 1", QIcon(), new ::OperationDemo1, rootOperations);
-    addTreeItem("Constant", QIcon(), new ::OperationConstant, rootOperations);
-    addTreeItem("Scope", QIcon(), new ::OperationScope, rootOperations);
+    addTreeItem("Integrator", QIcon(), new Blocks::BlockIntegrator, rootOperations);
+    addTreeItem("Constant", QIcon(), new Blocks::BlockConstant, rootOperations);
+    addTreeItem("Gain", QIcon(), new Blocks::BlockGain, rootOperations);
+    addTreeItem("Sum", QIcon(), new Blocks::BlockSum, rootOperations);
+    addTreeItem("Div", QIcon(), new Blocks::BlockDiv, rootOperations);
+    addTreeItem("Scope", QIcon(), new Blocks::BlockScope, rootOperations);
 
     addTreeItem("Dial", QIcon(), new ::Items::Widgets::Dial, rootWidgets);
     addTreeItem("TextEdit", QIcon(), new ::Items::Widgets::TextEdit, rootWidgets);

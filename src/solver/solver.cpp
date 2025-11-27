@@ -1,7 +1,7 @@
 #include <solver/solver.hpp>
 #include <items/blocks/baseblock.hpp>
-#include <items/operationconnector.hpp>
-#include <items/operationscope.hpp>
+#include <items/blocks/baseblockconnector.hpp>
+#include <items/blocks/blockscope.hpp>
 
 using namespace Solver;
 using namespace Blocks;
@@ -15,17 +15,18 @@ SolverBase::~SolverBase() {
 
 }
 
-void SolverBase::setup(const QSchematic::Netlist<BaseBlock *, OperationConnector *> &netlist) {
+void SolverBase::setup(const QSchematic::Netlist<BaseBlock *, BaseBlockConnector *> &netlist) {
     //Populate blocks and block types
     {
         _blocks.clear();
         for(auto &node : netlist.nodes) {
             auto blocktype = node->getSolverBlockType();
             _blocks.append({
+                node,
                 node->text(),
                 blocktype.name,
-                QMap<QString, SignalID>(),
-                QMap<QString, SignalID>(),
+                QVector<SignalID>(blocktype.numInputs),
+                QVector<SignalID>(blocktype.numOutputs),
                 node->getSolverParams()
             });
 
@@ -49,8 +50,10 @@ void SolverBase::setup(const QSchematic::Netlist<BaseBlock *, OperationConnector
     //Wire Blocks
     {
         for(auto &blk : _blocks) {
-            //blk.inputs.resize(_blockTypes[blk.type].numInputs);
-            //blk.outputs.resize(_blockTypes[blk.type].numOutputs);
+            blk.inputs.clear();
+            blk.outputs.clear();
+            blk.inputs.resize(_blockTypes[blk.type].numInputs, -1); //TODO
+            blk.outputs.resize(_blockTypes[blk.type].numOutputs, -1); //TODO
             blk.states.resize(_blockTypes[blk.type].numStates);
         }
 
@@ -61,15 +64,16 @@ void SolverBase::setup(const QSchematic::Netlist<BaseBlock *, OperationConnector
                 for(auto &blk : _blocks) {
                     if(blk.name != node->text()) continue;
 
-                    if(conn->label()->text().toStdString().find("out") != std::string::npos) {
-                        blk.outputs[conn->label()->text()] = s;
-                    } else if(conn->label()->text().toStdString().find("in") != std::string::npos) {
-                        blk.inputs[conn->label()->text()] = s;
+                    if(conn->isInput()) {
+                        blk.inputs[conn->index()] = s;
 
-                        auto scopeNode = dynamic_cast<OperationScope *>(node);
+                        auto scopeNode = dynamic_cast<BlockScope *>(node);
                         if(scopeNode != nullptr) {
                             scopeNode->setInputNetName(net.name);
                         }
+
+                    } else {
+                        blk.outputs[conn->index()] = s;
                     }
                 }
             }
@@ -106,17 +110,19 @@ void SolverBase::evaluateAlgebraic() {
     for(auto &blk : _blocks) {
         auto &type = _blockTypes[blk.type];
 
-        QMap<QString, double> in;
-        QMap<QString, double> out;
+        QVector<double> in(type.numInputs);
+        QVector<double> out(type.numOutputs);
 
-        for(auto [name, input] : blk.inputs.asKeyValueRange()) {
-            in[name] = _signals[input];
+        for(int i = 0; i < type.numInputs; i++) {
+            int inSignal = blk.inputs[i];
+            if(inSignal >= 0) in[i] = _signals[inSignal];
         }
 
-        if(type.algebraic != nullptr) type.algebraic(in, out, blk.params, blk.states);
+        blk.node->solveAlgebraic(in, out, blk.params, blk.states);
 
-        for(auto [name, output] : blk.outputs.asKeyValueRange()) {
-            _signals[output] = out[name];
+        for(int i = 0; i < type.numOutputs; i++) {
+            int outSignal = blk.outputs[i];
+            if(outSignal >= 0) _signals[outSignal] = out[i];
         }
     }
 }
@@ -135,16 +141,17 @@ void SolverBase::f_global(const QMap<QString, QVector<double>> &y, QMap<QString,
     xdot.clear();
     for(auto &blk : _blocks) {
         auto &type = _blockTypes[blk.type];
-        if(type.numStates == 0 || type.derivative == nullptr) continue;
+        if(type.numStates == 0) continue;
 
-        QMap<QString, double> in;
+        QVector<double> in(type.numInputs);
         QVector<double> dx(type.numStates);
 
-        for(auto [name, input] : blk.inputs.asKeyValueRange()) {
-            in[name] = _signals[input];
+        for(int i = 0; i < type.numInputs; i++) {
+            int inSignal = blk.inputs[i];
+            if(inSignal >= 0) in[i] = _signals[inSignal];
         }
 
-        type.derivative(in, blk.states, dx, blk.params);
+        blk.node->solveDerivative(in, blk.states, dx, blk.params);
 
         for(double d : dx) {
             int idx = 0;

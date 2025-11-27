@@ -10,17 +10,17 @@
 
 using namespace Blocks;
 
-class PopupOperation : public Popup {
+class PopupBaseBlock : public Popup {
     Q_OBJECT
-    Q_DISABLE_COPY_MOVE(PopupOperation)
+    Q_DISABLE_COPY_MOVE(PopupBaseBlock)
 
     public:
-        explicit PopupOperation(const BaseBlock &op) {
+        explicit PopupBaseBlock(const BaseBlock &op) {
             auto layout = new QFormLayout;
-            layout->addRow("Type:", new QLabel("BaseBlock"));
+            layout->addRow("Type:", new QLabel(QString(op.metaObject()->className()).split("::").last()));
             layout->addRow("Name:", new QLabel(op.label()->text()));
             setLayout(layout);
         }
 
-        ~PopupOperation() noexcept override = default;
+        ~PopupBaseBlock() noexcept override = default;
 };

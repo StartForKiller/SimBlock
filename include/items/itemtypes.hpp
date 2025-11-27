@@ -4,11 +4,14 @@
 
 enum ItemType {
     BaseBlockType = QSchematic::Items::Item::QSchematicItemUserType + 1,
-    OperationConnectorType,
+    BaseBlockConnectorType,
     FancyWireType,
-    OperationDemo1Type,
-    OperationConstantType,
-    OperationScopeType,
+    BlockIntegratorType,
+    BlockConstantType,
+    BlockScopeType,
+    BlockGainType,
+    BlockSumType,
+    BlockDivType,
     WidgetDial,
     WidgetTextedit
 };

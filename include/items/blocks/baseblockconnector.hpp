@@ -2,13 +2,15 @@
 
 #include <qschematic/items/connector.hpp>
 
-class OperationConnector : public QSchematic::Items::Connector {
+namespace Blocks {
+
+class BaseBlockConnector : public QSchematic::Items::Connector {
     Q_OBJECT
-    Q_DISABLE_COPY_MOVE(OperationConnector)
+    Q_DISABLE_COPY_MOVE(BaseBlockConnector)
 
     public:
-        OperationConnector(const QPoint& gridPos = QPoint(), const QString& text = QString(), QGraphicsItem *parent = nullptr);
-        ~OperationConnector() override = default;
+        BaseBlockConnector(const QPoint& gridPos = QPoint(), const QString& text = QString(), bool input = false, uint index = 0, QGraphicsItem *parent = nullptr);
+        ~BaseBlockConnector() override = default;
 
         gpds::container to_container() const override;
         void from_container(const gpds::container &container) override;
@@ -18,6 +20,18 @@ class OperationConnector : public QSchematic::Items::Connector {
         void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
         void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
 
+        bool isInput() const {
+            return _isInput;
+        }
+        int index() const {
+            return _index;
+        }
+
     protected:
-        void copyAttributes(OperationConnector &dest) const;
+        bool _isInput;
+        uint _index;
+
+        void copyAttributes(BaseBlockConnector &dest) const;
 };
+
+}

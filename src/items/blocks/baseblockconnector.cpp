@@ -1,6 +1,6 @@
-#include <items/operationconnector.hpp>
+#include <items/blocks/baseblockconnector.hpp>
 #include <items/blocks/baseblock.hpp>
-#include <items/popup/popup_connector.hpp>
+#include <items/popup/popup_baseblockconnector.hpp>
 
 #include <qschematic/items/label.hpp>
 #include <qschematic/scene.hpp>
@@ -22,43 +22,49 @@ const QColor COLOR_BODY_FILL = QColor(Qt::white);
 const QColor COLOR_BODY_BORDER = QColor(Qt::black);
 const qreal PEN_WIDTH = 1.5;
 
-OperationConnector::OperationConnector(const QPoint& gridPoint, const QString& text, QGraphicsItem *parent) :
-    QSchematic::Items::Connector(::ItemType::OperationConnectorType, gridPoint, text, parent)
+BaseBlockConnector::BaseBlockConnector(const QPoint& gridPoint, const QString& text, bool input, uint index, QGraphicsItem *parent) :
+    _isInput(input),
+    _index(index),
+    QSchematic::Items::Connector(::ItemType::BaseBlockConnectorType, gridPoint, text, parent)
 {
     label()->setVisible(true);
     setForceTextDirection(false);
 }
 
-gpds::container OperationConnector::to_container() const {
+gpds::container BaseBlockConnector::to_container() const {
     gpds::container root;
     addItemTypeIdToContainer(root);
     root.add_value("connector", QSchematic::Items::Connector::to_container());
+    root.add_value("isInput", _isInput);
+    root.add_value<int>("index", _index);
 
     return root;
 }
 
-void OperationConnector::from_container(const gpds::container &container) {
+void BaseBlockConnector::from_container(const gpds::container &container) {
     QSchematic::Items::Connector::from_container(*container.get_value<gpds::container *>("connector").value());
+    _isInput = container.get_value<bool>("isInput").value();
+    _index = container.get_value<int>("index").value_or(0);
 }
 
-std::shared_ptr<QSchematic::Items::Item> OperationConnector::deepCopy() const {
-    auto clone = std::make_shared<OperationConnector>(gridPos(), text(), parentItem());
+std::shared_ptr<QSchematic::Items::Item> BaseBlockConnector::deepCopy() const {
+    auto clone = std::make_shared<BaseBlockConnector>(gridPos(), text(), parentItem());
     copyAttributes(*clone);
 
     return clone;
 }
 
-std::unique_ptr<QWidget> OperationConnector::popup() const {
-    return std::make_unique<PopupConnector>(*this);
+std::unique_ptr<QWidget> BaseBlockConnector::popup() const {
+    return std::make_unique<PopupBaseBlockConnector>(*this);
 }
 
-QRectF OperationConnector::boundingRect() const {
+QRectF BaseBlockConnector::boundingRect() const {
     qreal adj = 1.5;
 
     return RECT.adjusted(-adj, -adj, adj, adj);
 }
 
-void OperationConnector::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+void BaseBlockConnector::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     Q_UNUSED(option);
     Q_UNUSED(widget)
 
@@ -82,7 +88,7 @@ void OperationConnector::paint(QPainter *painter, const QStyleOptionGraphicsItem
     painter->drawEllipse(RECT);
 }
 
-void OperationConnector::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) {
+void BaseBlockConnector::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) {
     QMenu menu;
     {
         QAction *visibility = new QAction;
@@ -168,6 +174,8 @@ void OperationConnector::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     menu.exec(event->screenPos());
 }
 
-void OperationConnector::copyAttributes(OperationConnector &dest) const {
+void BaseBlockConnector::copyAttributes(BaseBlockConnector &dest) const {
     QSchematic::Items::Connector::copyAttributes(dest);
+    dest._isInput = _isInput;
+    dest._index = _index;
 }

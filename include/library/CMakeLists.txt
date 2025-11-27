@@ -1,0 +1,9 @@
+target_sources(
+    ${target}
+    PRIVATE
+        iteminfo.hpp
+        model.hpp
+        modelitem.hpp
+        view.hpp
+        widget.hpp
+)

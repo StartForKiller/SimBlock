@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.15)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 set(target SimBlock)
@@ -48,71 +48,8 @@ target_compile_features(
         cxx_std_23
 )
 
-target_sources(
-    ${target}
-    PRIVATE
-    FILE_SET
-        HEADERS
-        FILES
-            include/commands/node_add_connector.hpp
-            include/commands/commands.hpp
-            include/common/treeitem.hpp
-            include/common/treemodel.hpp
-            include/items/blocks/baseblock.hpp
-            include/items/popup/popup.hpp
-            include/items/popup/popup_connector.hpp
-            include/items/popup/popup_operation.hpp
-            include/items/widgets/dial.hpp
-            include/items/widgets/textedit.hpp
-            include/items/customitemfactory.hpp
-            include/items/fancywire.hpp
-            include/items/itemtypes.hpp
-            include/items/operationconnector.hpp
-            include/items/operationconstant.hpp
-            include/items/operationdemo1.hpp
-            include/items/operationscope.hpp
-            include/library/iteminfo.hpp
-            include/library/iteminfo.hpp
-            include/library/modelitem.hpp
-            include/library/model.hpp
-            include/library/view.hpp
-            include/library/widget.hpp
-            include/netlist/model.hpp
-            include/netlist/view.hpp
-            include/netlist/viewer.hpp
-            include/netlist/widget.hpp
-            include/scope/scopewindow.hpp
-            include/solver/simulationworker.hpp
-            include/solver/solver.hpp
-            include/mainwindow.hpp
-
-    PRIVATE
-        src/commands/node_add_connector.cpp
-        src/common/treeitem.cpp
-        src/common/treemodel.cpp
-        src/items/blocks/baseblock.cpp
-        src/items/popup/popup.cpp
-        src/items/widgets/dial.cpp
-        src/items/widgets/textedit.cpp
-        src/items/customitemfactory.cpp
-        src/items/fancywire.cpp
-        src/items/operationconnector.cpp
-        src/items/operationconstant.cpp
-        src/items/operationdemo1.cpp
-        src/items/operationscope.cpp
-        src/library/model.cpp
-        src/library/view.cpp
-        src/library/widget.cpp
-        src/netlist/model.cpp
-        src/netlist/view.cpp
-        src/netlist/viewer.cpp
-        src/netlist/widget.cpp
-        src/scope/scopewindow.cpp
-        src/solver/simulationworker.cpp
-        src/solver/solver.cpp
-        src/main.cpp
-        src/mainwindow.cpp
-)
+add_subdirectory(include)
+add_subdirectory(src)
 
 target_include_directories(
     ${target}
@@ -135,17 +72,12 @@ target_link_libraries(
 set_target_properties(
     ${target}
     PROPERTIES
-        AUTOMOC ON
-        AUTORCC ON
-)
-
-set_target_properties(
-    ${target}
-    PROPERTIES
         OUTPUT_NAME "SimBlock"
         ARCHIVE_OUTPUT_NAME "SimBlock"
         VERSION "v0.0.1"
         POSITION_INDEPENDENT_CODE ON
+        AUTOMOC ON
+        AUTORCC ON
 )
 
 if (WINDOW_WIDTH)

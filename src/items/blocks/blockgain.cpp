@@ -1,5 +1,5 @@
-#include <items/operationconstant.hpp>
-#include <items/operationconnector.hpp>
+#include <items/blocks/blockgain.hpp>
+#include <items/blocks/baseblockconnector.hpp>
 #include <items/itemtypes.hpp>
 
 #include <qschematic/scene.hpp>
@@ -13,75 +13,66 @@
 #include <QInputDialog>
 #include <QGraphicsDropShadowEffect>
 
-struct ConnectorAttribute {
-    QPoint point;
-    QString name;
-};
+using namespace Blocks;
 
-OperationConstant::OperationConstant(QGraphicsItem *parent) :
-    BaseBlock(::ItemType::OperationConstantType, parent)
+BlockGain::BlockGain(QGraphicsItem *parent) :
+    BaseBlock(::ItemType::BlockGainType, parent)
 {
     setSize(40, 40);
-    label()->setText(QStringLiteral("Constant"));
+    label()->setText(QStringLiteral("Gain"));
 
     QVector<ConnectorAttribute> connectorAttributes = {
-        { QPoint(2, 1), QStringLiteral("out") }
+        { true, 0, QPoint(0, 1), QStringLiteral("in") },
+        { false, 0, QPoint(2, 1), QStringLiteral("out") }
     };
 
     //setConnectorsMovable(false);
 
-    for(const auto &c : connectorAttributes) {
-        auto connector = std::make_shared<OperationConnector>(c.point, c.name);
-        connector->label()->setVisible(false);
-        addConnector(connector);
-    }
+    setupConnectors(connectorAttributes);
 }
 
-gpds::container OperationConstant::to_container() const {
+gpds::container BlockGain::to_container() const {
     gpds::container root;
     addItemTypeIdToContainer(root);
     root.add_value("operation", BaseBlock::to_container());
-    root.add_value("value", _constantValue);
+    root.add_value("gain", _gainValue);
 
     return root;
 }
 
-void OperationConstant::from_container(const gpds::container &container) {
+void BlockGain::from_container(const gpds::container &container) {
     BaseBlock::from_container(*container.get_value<gpds::container *>("operation").value());
-    _constantValue = container.get_value<double>("value").value();
+    _gainValue = container.get_value<double>("gain").value();
 }
 
-std::shared_ptr<QSchematic::Items::Item> OperationConstant::deepCopy() const {
-    auto clone = std::make_shared<OperationConstant>(parentItem());
+std::shared_ptr<QSchematic::Items::Item> BlockGain::deepCopy() const {
+    auto clone = std::make_shared<BlockGain>(parentItem());
     copyAttributes(*clone);
 
     return clone;
 }
 
-void OperationConstant::copyAttributes(OperationConstant &dest) const {
+void BlockGain::copyAttributes(BlockGain &dest) const {
     BaseBlock::copyAttributes(dest);
 
-    dest._constantValue = _constantValue;
+    dest._gainValue = _gainValue;
 }
 
-Solver::BlockType OperationConstant::getSolverBlockType() {
+Solver::BlockType BlockGain::getSolverBlockType() const {
     using namespace std::placeholders;
     return {
-        QStringLiteral("constant"),
-        0, //Inputs
+        QStringLiteral("gain"),
+        1, //Inputs
         1, //Outputs
-        0, //States
-
-        std::bind(&OperationConstant::solveAlgebraic, this, _1, _2, _3, _4),
-        nullptr
+        0  //States
     };
 }
 
-void OperationConstant::solveAlgebraic(const QMap<QString, double> &in, QMap<QString, double> &out, const QVector<double> &params, const QVector<double> &states) {
-    out[QStringLiteral("out")] = _constantValue;
+void BlockGain::solveAlgebraic(const QVector<double> &in, QVector<double> &out, const QVector<double> &params, const QVector<double> &states) {
+    out[0] = in[0] * _gainValue;
 }
 
-void OperationConstant::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) {
+void BlockGain::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) {
     QMenu menu;
     {
         QAction *text = new QAction;
@@ -101,6 +92,8 @@ void OperationConstant::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) 
             );
             if(!ok)
                 return;
+
+            if(nameIsInUse(newText)) return;
 
             scene()->undoStack()->push(new QSchematic::Commands::LabelRename(label().get(), newText));
         });
@@ -131,7 +124,7 @@ void OperationConstant::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) 
         });
 
         QAction *value = new QAction;
-        value->setText("Value ...");
+        value->setText("Gain Value ...");
         connect(value, &QAction::triggered, [this]{
             if(!scene())
                 return;
@@ -141,7 +134,7 @@ void OperationConstant::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) 
                 nullptr,
                 "Set Constant Value",
                 "New constant value",
-                _constantValue,
+                _gainValue,
                 -2147483647, 2147483647, 5,
                 &ok
             );
@@ -149,7 +142,7 @@ void OperationConstant::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) 
                 return;
 
             //scene()->undoStack()->push(new QSchematic::Commands::LabelRename(label().get(), newText)); //TODO
-            _constantValue = newDouble;
+            _gainValue = newDouble;
         });
 
         QAction *duplicate = new QAction;

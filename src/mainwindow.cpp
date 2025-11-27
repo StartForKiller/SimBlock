@@ -1,8 +1,8 @@
 #include <mainwindow.hpp>
 #include <items/customitemfactory.hpp>
 #include <items/blocks/baseblock.hpp>
-#include <items/operationconnector.hpp>
-#include <items/operationscope.hpp>
+#include <items/blocks/baseblockconnector.hpp>
+#include <items/blocks/blockscope.hpp>
 #include <items/fancywire.hpp>
 #include <items/widgets/dial.hpp>
 #include <library/widget.hpp>
@@ -42,7 +42,11 @@
 
 const QString FILE_FILTERS = "XML (*.xml)";
 
+static MainWindow *_instance;
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
+    _instance = this;
+
     auto func = std::bind(&CustomItemFactory::from_container, std::placeholders::_1);
     QSchematic::Items::Factory::instance().setCustomItemsFactory(func);
 
@@ -121,6 +125,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     editorToolbar->addAction(_actionGenerateNetlist);
     editorToolbar->addAction(_actionClear);
     editorToolbar->addSeparator();
+    editorToolbar->addAction(_actionTimeStep);
+    editorToolbar->addAction(_actionTimeToSimulate);
     editorToolbar->addAction(_actionSolve);
     addToolBar(editorToolbar);
 
@@ -149,7 +155,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         for(const auto& node : _scene->nodes()) {
             if(!node) continue;
 
-            auto scopeNode = dynamic_cast<OperationScope *>(node.get());
+            auto scopeNode = dynamic_cast<Blocks::BlockScope *>(node.get());
             if(scopeNode != nullptr) {
                 scopeNode->onNewSample(t, values);
             }
@@ -303,9 +309,45 @@ void MainWindow::createActions() {
     });
 
     _actionSolve = new QAction("Solve", this);
-    _actionSolve->setIcon(QIcon(":/netlist.svg"));
+    _actionSolve->setIcon(QIcon(":/run.svg"));
     connect(_actionSolve, &QAction::triggered, [this]{
         solve();
+    });
+
+    _actionTimeStep = new QAction("Timestep", this);
+    _actionTimeStep->setText("Timestep ...");
+    connect(_actionTimeStep, &QAction::triggered, [this] {
+        bool ok = false;
+        const double newDouble = QInputDialog::getDouble(
+            nullptr,
+            "Set TimeStep Value",
+            "New timestep value",
+            _timeStep,
+            0.000000001, 2147483647, 5,
+            &ok
+        );
+        if(!ok)
+            return;
+
+        _timeStep = newDouble;
+    });
+
+    _actionTimeToSimulate = new QAction("Run Time", this);
+    _actionTimeToSimulate->setText("Run Time ...");
+    connect(_actionTimeToSimulate, &QAction::triggered, [this] {
+        bool ok = false;
+        const double newDouble = QInputDialog::getDouble(
+            nullptr,
+            "Set Run Time Value",
+            "New run time value",
+            _timeToSimulate,
+            0, 2147483647, 5,
+            &ok
+        );
+        if(!ok)
+            return;
+
+        _timeToSimulate = newDouble;
     });
 
     _actionClear = new QAction("Clear", this);
@@ -332,7 +374,7 @@ void MainWindow::settingsChanged() {
 }
 
 void MainWindow::generateNetlist() {
-    auto *netlist = new QSchematic::Netlist<Blocks::BaseBlock *, OperationConnector*>();
+    auto *netlist = new QSchematic::Netlist<Blocks::BaseBlock *, Blocks::BaseBlockConnector*>();
     QSchematic::NetlistGenerator::generate(*netlist, *_scene);
 
     _simulationWorker->setNetlist(netlist);
@@ -348,14 +390,22 @@ void MainWindow::solve() {
     for(const auto& node : _scene->nodes()) {
         if(!node) continue;
 
-        auto scopeNode = dynamic_cast<OperationScope *>(node.get());
+        auto scopeNode = dynamic_cast<Blocks::BlockScope *>(node.get());
         if(scopeNode != nullptr) {
             scopeNode->onStartSimulation();
         }
     }
 
-    _simulationWorker->setTimeParameters(0.01, 3.0);
+    _simulationWorker->setTimeParameters(_timeStep, _timeToSimulate);
 
     _simulating = true;
     _simulationWorkerThread->start();
+}
+
+MainWindow *MainWindow::instance() {
+    return _instance;
+}
+
+QSchematic::Scene *MainWindow::scene() {
+    return _scene;
 }

@@ -20,7 +20,7 @@ Viewer::Viewer(QWidget *parent) :
     setLayout(layout);
 }
 
-void Viewer::setNetlist(const QSchematic::Netlist<BaseBlock *, OperationConnector *> &netlist) {
+void Viewer::setNetlist(const QSchematic::Netlist<BaseBlock *, BaseBlockConnector *> &netlist) {
     Q_ASSERT(_model);
     _model->setNetlist(netlist);
 }

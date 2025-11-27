@@ -6,9 +6,8 @@
 
 namespace Blocks {
     class BaseBlock;
+    class BaseBlockConnector;
 };
-
-class OperationConnector;
 
 namespace Netlist {
 
@@ -23,7 +22,7 @@ class Viewer : public QWidget {
         Viewer(QWidget *parent = nullptr);
         ~Viewer() override = default;
 
-        void setNetlist(const QSchematic::Netlist<Blocks::BaseBlock *, OperationConnector *> &netlist);
+        void setNetlist(const QSchematic::Netlist<Blocks::BaseBlock *, Blocks::BaseBlockConnector *> &netlist);
 
     private:
         Model *_model = nullptr;
