@@ -15,7 +15,6 @@ class BlockGain : public BaseBlock {
         gpds::container to_container() const override;
         void from_container(const gpds::container &container) override;
         std::shared_ptr<QSchematic::Items::Item> deepCopy() const override;
-        void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
 
         Solver::BlockType getSolverBlockType() const override;
         void solveAlgebraic(const QVector<double> &in, QVector<double> &out, const QVector<double> &params, const QVector<double> &states) override;

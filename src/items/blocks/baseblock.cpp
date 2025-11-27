@@ -1,5 +1,6 @@
 #include <items/blocks/baseblock.hpp>
 #include <items/blocks/baseblockconnector.hpp>
+#include <items/blocks/properties/blockpropertiesdialog.hpp>
 #include <items/popup/popup_baseblock.hpp>
 #include <commands/node_add_connector.hpp>
 
@@ -340,4 +341,18 @@ void BaseBlock::setupConnectors(QVector<BaseBlock::ConnectorAttribute> &connecto
         connector->label()->setVisible(false);
         addConnector(connector);
     }
+}
+
+void BaseBlock::addProperty(const Properties::BlockProperty &property) {
+    _properties.append(property);
+}
+
+void BaseBlock::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) {
+    Properties::PropertiesDialog dlg(this);
+
+    if(dlg.exec() == QDialog::Accepted) {
+        //TODO: Update
+    }
+
+    QSchematic::Items::Node::mouseDoubleClickEvent(event);
 }

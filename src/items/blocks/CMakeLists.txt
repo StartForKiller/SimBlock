@@ -1,3 +1,5 @@
+add_subdirectory(properties)
+
 target_sources(
     ${target}
     PRIVATE

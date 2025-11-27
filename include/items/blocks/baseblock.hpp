@@ -3,13 +3,15 @@
 #include <items/itemtypes.hpp>
 #include <solver/solver.hpp>
 
+#include <items/blocks/properties/blockproperty.hpp>
+
 #include <qschematic/items/node.hpp>
 
 #include <QVector>
 
 namespace QSchematic::Items {
     class Label;
-}
+};
 
 namespace Blocks {
 
@@ -35,6 +37,7 @@ class BaseBlock : public QSchematic::Items::Node {
         std::unique_ptr<QWidget> popup() const override;
         void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
         void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
+        void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) override;
 
         void alignLabel();
         std::shared_ptr<QSchematic::Items::Label> label() const;
@@ -53,10 +56,18 @@ class BaseBlock : public QSchematic::Items::Node {
         QString getUnusedName(QString baseName) const;
         bool nameIsInUse(QString name) const;
 
+        void addProperty(const Properties::BlockProperty &property);
+
         void setupConnectors(QVector<ConnectorAttribute> &connectorAttributes);
+
+    public:
+        const QVector<Properties::BlockProperty> &properties() const { return _properties; }
+        QVector<Properties::BlockProperty> &properties() { return _properties; }
 
     private:
         std::shared_ptr<QSchematic::Items::Label> _label;
+
+        QVector<Properties::BlockProperty> _properties;
 };
 
 }

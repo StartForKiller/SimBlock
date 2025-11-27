@@ -1,6 +1,8 @@
 #include <solver/simulationworker.hpp>
 #include <solver/solver.hpp>
 
+//#define SIMBLOCK_DEBUG_SOLVER 1
+
 using namespace Solver;
 using namespace Blocks;
 
@@ -32,12 +34,14 @@ void SimulationWorker::simulate() {
         auto netOutputValues = _solver->getOutputValues();
         emit sampleGenerated(t, netOutputValues);
 
-        for(auto [netName, netValue] : netOutputValues.asKeyValueRange()) {
-            printf("Solver (t=%f) Net(%s)=%lf\n",
-                t,
-                netName.toStdString().c_str(),
-                netValue);
-        }
+        #ifdef SIMBLOCK_DEBUG_SOLVER
+            for(auto [netName, netValue] : netOutputValues.asKeyValueRange()) {
+                printf("Solver (t=%f) Net(%s)=%lf\n",
+                    t,
+                    netName.toStdString().c_str(),
+                    netValue);
+            }
+        #endif
     }
 
     emit simulationFinished();
