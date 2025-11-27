@@ -20,15 +20,16 @@ BlockScope::BlockScope(QGraphicsItem *parent) :
     BaseBlock(::ItemType::BlockScopeType, parent)
 {
     setSize(80, 80);
-    label()->setText(QStringLiteral("Scope"));
+    setBaseName(QStringLiteral("Scope"));
 
     QVector<ConnectorAttribute> connectorAttributes = {
         { true, 0, QPoint(0, 2), QStringLiteral("in") }
     };
+    setupConnectors(connectorAttributes);
+
+    setDescription(QStringLiteral("Displays values on the input on the GUI"));
 
     //setConnectorsMovable(false);
-
-    setupConnectors(connectorAttributes);
 }
 
 gpds::container BlockScope::to_container() const {

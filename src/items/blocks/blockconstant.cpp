@@ -19,13 +19,14 @@ BlockConstant::BlockConstant(QGraphicsItem *parent) :
     BaseBlock(::ItemType::BlockConstantType, parent)
 {
     setSize(40, 40);
-    label()->setText(QStringLiteral("Constant"));
+    setBaseName(QStringLiteral("Constant"));
 
     QVector<ConnectorAttribute> connectorAttributes = {
         { false, 0, QPoint(2, 1), QStringLiteral("out") }
     };
     setupConnectors(connectorAttributes);
 
+    setDescription(QStringLiteral("Outputs a constant value"));
     addProperty({
         "Value", Properties::BLOCK_PROPERTY_DOUBLE,
         -1e9, 1e9,

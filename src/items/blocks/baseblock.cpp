@@ -57,6 +57,8 @@ BaseBlock::BaseBlock(int type, QGraphicsItem *parent) :
     graphicsEffect->setBlurRadius(SHADOW_BLUR_RADIUS);
     graphicsEffect->setColor(SHADOW_COLOR);
     setGraphicsEffect(graphicsEffect);
+
+    _description = QStringLiteral("Generic Description (This is an error)");
 }
 
 BaseBlock::~BaseBlock() {
@@ -86,6 +88,11 @@ std::shared_ptr<QSchematic::Items::Item> BaseBlock::deepCopy() const {
 
 std::unique_ptr<QWidget> BaseBlock::popup() const {
     return std::make_unique<PopupBaseBlock>(*this);
+}
+
+void BaseBlock::setBaseName(QString baseName) {
+    _baseName = baseName;
+    label()->setText(baseName);
 }
 
 void BaseBlock::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {

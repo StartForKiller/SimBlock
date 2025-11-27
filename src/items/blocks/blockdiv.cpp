@@ -10,15 +10,16 @@ BlockDiv::BlockDiv(QGraphicsItem *parent) :
     BaseBlock(::ItemType::BlockDivType, parent)
 {
     setSize(80, 80);
-    label()->setText(QStringLiteral("Div"));
+    setBaseName(QStringLiteral("Div"));
 
     QVector<ConnectorAttribute> connectorAttributes = {
         { true , 0, QPoint(0, 1), QStringLiteral("in 1") },
         { true , 1, QPoint(0, 3), QStringLiteral("in 2") },
         { false, 0, QPoint(4, 2), QStringLiteral("out") }
     };
-
     setupConnectors(connectorAttributes);
+
+    setDescription(QStringLiteral("Divide a scalar value"));
 }
 
 gpds::container BlockDiv::to_container() const {

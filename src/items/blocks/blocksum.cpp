@@ -10,15 +10,16 @@ BlockSum::BlockSum(QGraphicsItem *parent) :
     BaseBlock(::ItemType::BlockSumType, parent)
 {
     setSize(80, 80);
-    label()->setText(QStringLiteral("Sum"));
+    setBaseName(QStringLiteral("Sum"));
 
     QVector<ConnectorAttribute> connectorAttributes = {
         { true , 0, QPoint(0, 1), QStringLiteral("in 1") },
         { true , 1, QPoint(0, 3), QStringLiteral("in 2") },
         { false, 0, QPoint(4, 2), QStringLiteral("out") }
     };
-
     setupConnectors(connectorAttributes);
+
+    setDescription(QStringLiteral("Outputs the sum of both inputs"));
 }
 
 gpds::container BlockSum::to_container() const {

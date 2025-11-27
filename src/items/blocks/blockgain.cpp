@@ -19,7 +19,7 @@ BlockGain::BlockGain(QGraphicsItem *parent) :
     BaseBlock(::ItemType::BlockGainType, parent)
 {
     setSize(40, 40);
-    label()->setText(QStringLiteral("Gain"));
+    setBaseName(QStringLiteral("Gain"));
 
     QVector<ConnectorAttribute> connectorAttributes = {
         { true, 0, QPoint(0, 1), QStringLiteral("in") },
@@ -27,6 +27,7 @@ BlockGain::BlockGain(QGraphicsItem *parent) :
     };
     setupConnectors(connectorAttributes);
 
+    setDescription(QStringLiteral("Applies a gain to the input"));
     addProperty({
         "Gain", Properties::BLOCK_PROPERTY_DOUBLE,
         -1e9, 1e9,

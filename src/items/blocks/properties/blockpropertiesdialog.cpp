@@ -6,6 +6,8 @@
 #include <QFormLayout>
 #include <QDoubleSpinBox>
 #include <QLineEdit>
+#include <QLabel>
+#include <QGroupBox>
 #include <QCheckBox>
 #include <QPushButton>
 
@@ -17,9 +19,29 @@ PropertiesDialog::PropertiesDialog(BaseBlock *block, QWidget *parent) :
     _block(block)
 {
     setWindowTitle(QStringLiteral("Block Properties: %1").arg(block->text()));
+    setMinimumSize(QSize(342, 375));
 
     auto layout = new QVBoxLayout(this);
     auto form = new QFormLayout;
+
+    auto descriptionGroup = new QGroupBox(block->baseName());
+    descriptionGroup->setStyleSheet(R"(
+        QGroupBox {
+            border: 1px solid silver;
+            margin-top: 6px;
+        }
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            subcontrol-position: top left;
+            left: 6px;
+            padding: 0 0px 0 0px;
+        }
+    )");
+    auto descriptionGroupLayout = new QVBoxLayout(descriptionGroup);
+    descriptionGroupLayout->addWidget(new QLabel(block->description()));
+    descriptionGroup->setLayout(descriptionGroupLayout);
+
+    layout->addWidget(descriptionGroup);
 
     for(auto &prop : _block->properties()) {
         QWidget *editor = nullptr;
@@ -61,10 +83,12 @@ PropertiesDialog::PropertiesDialog(BaseBlock *block, QWidget *parent) :
         }
 
         _editors.push_back(editor);
-        form->addRow(prop.name + ":", editor);
+        form->addRow(new QLabel(prop.name + ":"));
+        form->addRow(editor);
     }
 
     layout->addLayout(form);
+    layout->addStretch();
 
     auto ok = new QPushButton("Accept");
     auto cancel = new QPushButton("Cancel");

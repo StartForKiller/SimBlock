@@ -43,6 +43,8 @@ class BaseBlock : public QSchematic::Items::Node {
         std::shared_ptr<QSchematic::Items::Label> label() const;
         void setText(const QString &text);
         QString text() const;
+        QString baseName() const { return _baseName; }
+        QString description() const { return _description; }
 
         virtual Solver::BlockType getSolverBlockType() const;
         virtual QVector<double> getSolverParams();
@@ -52,6 +54,9 @@ class BaseBlock : public QSchematic::Items::Node {
 
     protected:
         void copyAttributes(BaseBlock &dest) const;
+
+        void setBaseName(QString baseName);
+        void setDescription(QString description) { _description = description; }
 
         QString getUnusedName(QString baseName) const;
         bool nameIsInUse(QString name) const;
@@ -67,6 +72,8 @@ class BaseBlock : public QSchematic::Items::Node {
     private:
         std::shared_ptr<QSchematic::Items::Label> _label;
 
+        QString _baseName;
+        QString _description;
         QVector<Properties::BlockProperty> _properties;
 };
 

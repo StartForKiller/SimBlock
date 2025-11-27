@@ -10,14 +10,15 @@ BlockIntegrator::BlockIntegrator(QGraphicsItem *parent) :
     BaseBlock(::ItemType::BlockIntegratorType, parent)
 {
     setSize(80, 80);
-    label()->setText(QStringLiteral("Integrator"));
+    setBaseName(QStringLiteral("Integrator"));
 
     QVector<ConnectorAttribute> connectorAttributes = {
         { true , 0, QPoint(0, 2), QStringLiteral("in") },
         { false, 0, QPoint(4, 2), QStringLiteral("out") }
     };
-
     setupConnectors(connectorAttributes);
+
+    setDescription(QStringLiteral("Integrates the input value"));
 }
 
 gpds::container BlockIntegrator::to_container() const {
