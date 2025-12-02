@@ -10,7 +10,7 @@ class MainWindowTest : public QObject {
 
             _window = new MainWindow();
             _window->show();
-            QVERIFY(QTest::qWaitForWindowActive(_window));
+            QVERIFY(QTest::qWaitForWindowExposed(_window));
         }
 
         void cleanupTestCase() {
