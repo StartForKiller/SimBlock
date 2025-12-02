@@ -7,25 +7,25 @@
 
 namespace Tests {
 
-void saveScreenshot(const QString &stepName, QWidget *window = nullptr) {
+void saveScreenshot(const QString &stepName, QWidget *widget = nullptr) {
+    if (!widget) return;
+
     QDir().mkpath("screenshots");
 
-    const QString appName = QTest::currentAppName();
+    const QString appName = QString(QTest::currentAppName()).split("/").last();
     const QString testFunc = QTest::currentTestFunction();
 
-    QString autoName = QString("%1_%2_%3")
+    QString autoName = QString("%1-%2-%3")
             .arg(appName)
             .arg(testFunc)
             .arg(stepName);
 
-    QScreen *screen = QGuiApplication::primaryScreen();
-    QPixmap pix;
+    QPixmap pix(widget->size());
+    pix.fill(Qt::transparent);
 
-    if(window) {
-        pix = screen->grabWindow(window->winId());
-    } else {
-        pix = screen->grabWindow(0);
-    }
+    QPainter painter(&pix);
+    widget->render(&painter);
+    painter.end();
 
     QPainter p(&pix);
     p.setRenderHint(QPainter::Antialiasing, true);
@@ -50,6 +50,7 @@ void saveScreenshot(const QString &stepName, QWidget *window = nullptr) {
     p.end();
 
     QString filename = QString("screenshots/%1.png").arg(autoName);
+    printf("Hola\n");
     pix.save(filename, "PNG");
 }
 
