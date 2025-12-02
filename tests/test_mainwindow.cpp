@@ -18,6 +18,7 @@ class MainWindowTest : public QObject {
         }
 
         void test_fail() {
+            QEXPECT_FAIL("", "This is expected to fail", Continue);
             QCOMPARE("Hola", "Adios");
         }
 
