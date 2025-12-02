@@ -45,6 +45,8 @@ const QString FILE_FILTERS = "XML (*.xml)";
 static MainWindow *_instance;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
+    Q_INIT_RESOURCE(icons);
+
     _instance = this;
 
     auto func = std::bind(&CustomItemFactory::from_container, std::placeholders::_1);

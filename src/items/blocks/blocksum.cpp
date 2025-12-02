@@ -47,7 +47,9 @@ Solver::BlockType BlockSum::getSolverBlockType() const {
         QStringLiteral("sum"),
         2, //Inputs
         1, //Outputs
-        0  //States
+        0, //States
+
+        false //Only true for blocks that doesn't cause algebraic loops
     };
 }
 

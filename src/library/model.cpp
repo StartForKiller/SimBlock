@@ -7,6 +7,8 @@
 #include <items/blocks/blockgain.hpp>
 #include <items/blocks/blocksum.hpp>
 #include <items/blocks/blockdiv.hpp>
+#include <items/blocks/blocktf.hpp>
+#include <items/blocks/blockderivator.hpp>
 
 #include <items/widgets/dial.hpp>
 #include <items/widgets/textedit.hpp>
@@ -55,10 +57,12 @@ void Model::createModel() {
     //TODO
 
     addTreeItem("Integrator", QIcon(), new Blocks::BlockIntegrator, rootOperations);
+    addTreeItem("Derivator", QIcon(), new Blocks::BlockDerivator, rootOperations);
     addTreeItem("Constant", QIcon(), new Blocks::BlockConstant, rootOperations);
     addTreeItem("Gain", QIcon(), new Blocks::BlockGain, rootOperations);
     addTreeItem("Sum", QIcon(), new Blocks::BlockSum, rootOperations);
     addTreeItem("Div", QIcon(), new Blocks::BlockDiv, rootOperations);
+    addTreeItem("Transfer Function", QIcon(), new Blocks::BlockTF, rootOperations);
     addTreeItem("Scope", QIcon(), new Blocks::BlockScope, rootOperations);
 
     addTreeItem("Dial", QIcon(), new ::Items::Widgets::Dial, rootWidgets);

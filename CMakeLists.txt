@@ -1,7 +1,8 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.21)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 set(target SimBlock)
+set(target_library SimBlockLib)
 project(
     ${target}
     VERSION 0.0.1
@@ -10,12 +11,14 @@ project(
 
 find_package(
     Qt6
+    REQUIRED
     COMPONENTS
         Core
         Gui
         Widgets
         PrintSupport
         Svg
+        Test
 )
 
 include(FetchContent)
@@ -39,6 +42,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(qcustomplot)
 
 add_executable(${target})
+add_library(${target_library})
 
 add_subdirectory(resources)
 
@@ -51,6 +55,9 @@ target_compile_features(
 add_subdirectory(include)
 add_subdirectory(src)
 
+enable_testing()
+add_subdirectory(tests)
+
 target_include_directories(
     ${target}
     PRIVATE
@@ -61,12 +68,9 @@ target_link_libraries(
     ${target}
     PRIVATE
         Qt::Core
-        Qt::Gui
         Qt::Widgets
-        Qt::PrintSupport
-        Qt::Svg
         qschematic::qschematic-static
-        qcustomplot
+        ${target_library}
 )
 
 set_target_properties(

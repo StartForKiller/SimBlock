@@ -3,7 +3,7 @@ add_subdirectory(popup)
 add_subdirectory(widgets)
 
 target_sources(
-    ${target}
+    ${target_library}
     PRIVATE
         customitemfactory.cpp
         fancywire.cpp

@@ -1,5 +1,5 @@
 target_sources(
-    ${target}
+    ${target_library}
     PRIVATE
         dial.hpp
         textedit.hpp

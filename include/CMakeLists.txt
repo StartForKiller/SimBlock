@@ -7,7 +7,7 @@ add_subdirectory(scope)
 add_subdirectory(solver)
 
 target_sources(
-    ${target}
+    ${target_library}
     PRIVATE
         mainwindow.hpp
 )

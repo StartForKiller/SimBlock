@@ -289,7 +289,9 @@ Solver::BlockType BaseBlock::getSolverBlockType() const {
         QStringLiteral("Base"),
         0,
         0,
-        0
+        0,
+
+        false //Only true for blocks that doesn't cause algebraic loops
     };
 }
 

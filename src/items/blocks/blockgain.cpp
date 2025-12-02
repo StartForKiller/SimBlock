@@ -71,7 +71,9 @@ Solver::BlockType BlockGain::getSolverBlockType() const {
         QStringLiteral("gain"),
         1, //Inputs
         1, //Outputs
-        0  //States
+        0, //States
+
+        false //Only true for blocks that doesn't cause algebraic loops
     };
 }
 

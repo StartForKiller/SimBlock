@@ -12,6 +12,8 @@ enum ItemType {
     BlockGainType,
     BlockSumType,
     BlockDivType,
+    BlockTFType,
+    BlockDerivatorType,
     WidgetDial,
     WidgetTextedit
 };

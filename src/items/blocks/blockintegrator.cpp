@@ -46,7 +46,9 @@ Solver::BlockType BlockIntegrator::getSolverBlockType() const {
         QStringLiteral("integrator"),
         1, //Inputs
         1, //Outputs
-        1  //States
+        1, //States
+
+        true //Only true for blocks that doesn't cause algebraic loops
     };
 }
 

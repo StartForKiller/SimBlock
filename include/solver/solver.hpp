@@ -39,6 +39,7 @@ struct BlockType {
     int numInputs;
     int numOutputs;
     int numStates;
+    bool dontConsumeInput;
 };
 
 class SolverBase {
@@ -60,6 +61,7 @@ class SolverBase {
         QVector<Signal> _signals;
         QMap<QString, BlockType> _blockTypes;
         QVector<Block> _blocks;
+        QVector<Block *> _orderedBlocks;
         QMap<QString, QVector<Signal>> _y;
 };
 
@@ -104,5 +106,7 @@ inline Signal& operator+=(Signal& s, const Signal& other) {
     s = s + other;
     return s;
 }
+
+Signal operator-(const Signal &a, const Signal &b);
 
 }
