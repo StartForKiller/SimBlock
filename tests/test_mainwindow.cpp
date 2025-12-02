@@ -1,6 +1,9 @@
 #include <QtTest/QtTest>
 #include <mainwindow.hpp>
 
+#include <items/blocks/blockintegrator.hpp>
+#include <solver/testsolver.hpp>
+
 #include "utils.hpp"
 
 using namespace Tests;

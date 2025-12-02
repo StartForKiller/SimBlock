@@ -3,4 +3,5 @@ target_sources(
     PRIVATE
         simulationworker.cpp
         solver.cpp
+        testsolver.cpp
 )

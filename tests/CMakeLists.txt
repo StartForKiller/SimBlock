@@ -1,5 +1,6 @@
 set(TEST_SOURCES
     test_mainwindow.cpp
+    test_blockintegrator.cpp
 )
 
 foreach(test_src ${TEST_SOURCES})
