@@ -1,6 +1,10 @@
 #include <QtTest/QtTest>
 #include <mainwindow.hpp>
 
+#include "utils.hpp"
+
+using namespace Tests;
+
 class MainWindowTest : public QObject {
     Q_OBJECT
 
@@ -18,8 +22,16 @@ class MainWindowTest : public QObject {
         }
 
         void test_fail() {
+            saveScreenshot("after_fail_expected", _window);
+
             QEXPECT_FAIL("", "This is expected to fail", Continue);
             QCOMPARE("Hola", "Adios");
+        }
+
+        void cleanup() {
+            if (QTest::currentTestFailed()) {
+                saveScreenshot("failState", _window);
+            }
         }
 
     private:
