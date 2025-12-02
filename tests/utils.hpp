@@ -50,7 +50,6 @@ void saveScreenshot(const QString &stepName, QWidget *widget = nullptr) {
     p.end();
 
     QString filename = QString("screenshots/%1.png").arg(autoName);
-    printf("Hola\n");
     pix.save(filename, "PNG");
 }
 
