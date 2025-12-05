@@ -5,9 +5,4 @@ add_subdirectory(library)
 add_subdirectory(netlist)
 add_subdirectory(scope)
 add_subdirectory(solver)
-
-target_sources(
-    ${target_library}
-    PRIVATE
-        mainwindow.hpp
-)
+add_subdirectory(windows)

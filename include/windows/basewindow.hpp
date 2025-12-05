@@ -34,35 +34,31 @@ namespace Solver
     class SimulationWorker;
 };
 
-class MainWindow : public QMainWindow {
+namespace Windows {
+
+class BaseWindow : public QMainWindow {
     Q_OBJECT
-    Q_DISABLE_COPY_MOVE(MainWindow)
+    Q_DISABLE_COPY_MOVE(BaseWindow)
 
     public:
-        explicit MainWindow(QWidget *parent = nullptr);
-        ~MainWindow() override = default;
+        explicit BaseWindow(QWidget *parent = nullptr);
+        ~BaseWindow() override = default;
 
-        bool save();
-        bool load();
-        bool load(const QString &filepath);
         void createActions();
-        void main();
+
+        void setSettings(QSchematic::Settings settings);
 
     public:
-        static MainWindow *instance();
         QSchematic::Scene *scene();
 
-    private:
+    protected:
         void settingsChanged();
-        void generateNetlist();
-        void solve();
 
         QSchematic::Scene *_scene = nullptr;
         QSchematic::View *_view = nullptr;
         QSchematic::Settings _settings;
         Library::Widget *_itemLibraryWidget = nullptr;
         QUndoView* _undoView = nullptr;
-        ::Netlist::Widget* _netlistViewerWidget = nullptr;
 
         QAction *_actionOpen = nullptr;
         QAction *_actionSave = nullptr;
@@ -81,10 +77,6 @@ class MainWindow : public QMainWindow {
         QAction *_actionSolve = nullptr;
         QAction *_actionTimeStep = nullptr;
         QAction *_actionTimeToSimulate = nullptr;
-
-        bool _simulating = false;
-        QThread* _simulationWorkerThread;
-        Solver::SimulationWorker *_simulationWorker = nullptr;
-        double _timeStep = 0.01;
-        double _timeToSimulate = 5.0;
 };
+
+}

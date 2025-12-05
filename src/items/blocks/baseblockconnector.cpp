@@ -15,10 +15,10 @@
 
 using namespace Blocks;
 
-#define SIZE (_settings.gridSize / 2)
-#define RECT (QRectF(-SIZE, -SIZE, 2 * SIZE, 2 * SIZE))
+#define SIZE (_settings.gridSize / 4)
+#define RECT (QRectF(-SIZE, -SIZE, SIZE, 2 * SIZE))
 
-const QColor COLOR_BODY_FILL = QColor(Qt::white);
+const QColor COLOR_BODY_FILL = QColor(Qt::black);
 const QColor COLOR_BODY_BORDER = QColor(Qt::black);
 const qreal PEN_WIDTH = 1.5;
 
@@ -85,7 +85,28 @@ void BaseBlockConnector::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
     painter->setPen(bodyPen);
     painter->setBrush(bodyBrush);
-    painter->drawEllipse(RECT);
+
+    if(hasConnection()) {
+        if(_isInput) {
+            QPointF triPoints[3];
+            triPoints[0] = QPointF(-SIZE, -SIZE);
+            triPoints[1] = QPointF(0.0, 0.0);
+            triPoints[2] = QPointF(-SIZE, SIZE);
+            painter->drawPolygon(triPoints, 3);
+        }
+    } else if(_isInput) {
+        QPointF triPoints[3];
+        triPoints[0] = QPointF(-SIZE, -SIZE);
+        triPoints[1] = QPointF(0.0, 0.0);
+        triPoints[2] = QPointF(-SIZE, SIZE);
+        painter->drawPolyline(triPoints, 3);
+    } else {
+        QPointF triPoints[3];
+        triPoints[0] = QPointF(0.0, -SIZE);
+        triPoints[1] = QPointF(SIZE, 0.0);
+        triPoints[2] = QPointF(0.0, SIZE);
+        painter->drawPolyline(triPoints, 3);
+    }
 }
 
 void BaseBlockConnector::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) {

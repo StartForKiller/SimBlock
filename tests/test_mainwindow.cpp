@@ -1,5 +1,5 @@
 #include <QtTest/QtTest>
-#include <mainwindow.hpp>
+#include <windows/mainwindow.hpp>
 
 #include <items/blocks/blockintegrator.hpp>
 #include <solver/testsolver.hpp>
@@ -15,7 +15,7 @@ class MainWindowTest : public QObject {
         void initTestCase() {
             qDebug("Called before everything else.");
 
-            _window = new MainWindow();
+            _window = new Windows::MainWindow();
             _window->show();
             QVERIFY(QTest::qWaitForWindowExposed(_window));
         }
@@ -38,7 +38,7 @@ class MainWindowTest : public QObject {
         }
 
     private:
-        MainWindow *_window;
+        Windows::MainWindow *_window;
 };
 
 QTEST_MAIN(MainWindowTest)

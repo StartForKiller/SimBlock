@@ -11,6 +11,7 @@ target_sources(
         blockgain.hpp
         blockintegrator.hpp
         blockscope.hpp
+        blocksubsystem.hpp
         blocksum.hpp
         blocktf.hpp
 )

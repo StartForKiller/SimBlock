@@ -12,6 +12,7 @@
 #include <QGraphicsSceneContextMenuEvent>
 #include <QInputDialog>
 #include <QGraphicsDropShadowEffect>
+#include <QPainter>
 
 using namespace Blocks;
 
@@ -31,11 +32,12 @@ BlockGain::BlockGain(QGraphicsItem *parent) :
     addProperty({
         "Gain", Properties::BLOCK_PROPERTY_DOUBLE,
         -1e9, 1e9,
-        [&](const QVariant &v) { _gainValue = v.toDouble(); },
+        [&](const QVariant &v) { _gainValue = v.toDouble(); update(); },
         [&]() { return QVariant(_gainValue); }
     });
 
-    //setConnectorsMovable(false);
+    setConnectorsMovable(false);
+    setConnectorsSnapToGrid(false);
 }
 
 gpds::container BlockGain::to_container() const {
@@ -63,6 +65,102 @@ void BlockGain::copyAttributes(BlockGain &dest) const {
     BaseBlock::copyAttributes(dest);
 
     dest._gainValue = _gainValue;
+}
+
+void BlockGain::sizeChangedEvent(QSizeF oldSize, QSizeF newSize) {
+    BaseBlock::sizeChangedEvent(oldSize, newSize);
+
+    auto c = getConnector(true, 0);
+    if(c) c->setPos(QPointF(0, newSize.height() / 2.0));
+    c = getConnector(false, 0);
+    if(c) c->setPos(QPointF(newSize.width(), newSize.height() / 2.0));
+}
+
+const QColor COLOR_BODY_FILL = QColor(QStringLiteral("#E0E0E0"));
+const QColor COLOR_BODY_BORDER = QColor(Qt::black);
+const qreal TEXT_MARGIN_LEFT = 5.0;
+const qreal PEN_WIDTH = 1.5;
+
+void BlockGain::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+    Q_UNUSED(option);
+    Q_UNUSED(widget)
+
+    if(_settings.debug) {
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(QBrush(Qt::red));
+        painter->drawRect(boundingRect());
+    }
+
+    //Body
+    {
+        QPointF triPoints[3];
+
+        QPointF a(0.0, 0.0), b(0.0, height()), c(width(), height()/2.0);
+        QPolygonF triangle;
+        triangle << a << b << c;
+
+        QPen pen;
+        pen.setWidthF(PEN_WIDTH);
+        pen.setStyle(Qt::SolidLine);
+        pen.setColor(COLOR_BODY_BORDER);
+
+        QBrush brush;
+        brush.setStyle(Qt::SolidPattern);
+        brush.setColor(COLOR_BODY_FILL);
+
+        painter->setPen(pen);
+        painter->setBrush(brush);
+        painter->drawPolygon(triangle);
+
+        auto text = QStringLiteral("%1").arg(_gainValue);
+        auto fallback = QStringLiteral("K");
+
+        QFont font = painter->font();
+        font.setPointSize(11);
+        painter->setFont(font);
+
+        QFontMetrics fm(font);
+        qreal textW = fm.horizontalAdvance(text);
+        qreal textH = fm.height();
+        QSizeF textSize(textW, textH);
+
+        QRectF triBounds = triangle.boundingRect();
+        QPointF topLeft(triBounds.left() + TEXT_MARGIN_LEFT, triBounds.center().y() - textH / 2.0);
+        QRectF textRect(topLeft, textSize);
+
+        auto rectInsidePolygon = [&](const QRectF &r, const QPolygonF &poly) -> bool {
+            QPointF p1 = r.topLeft();
+            QPointF p2 = r.topRight();
+            QPointF p3 = r.bottomRight();
+            QPointF p4 = r.bottomLeft();
+            // usa OddEvenFill (normal) para containsPoint
+            return poly.containsPoint(p1, Qt::OddEvenFill)
+                && poly.containsPoint(p2, Qt::OddEvenFill)
+                && poly.containsPoint(p3, Qt::OddEvenFill)
+                && poly.containsPoint(p4, Qt::OddEvenFill);
+        };
+
+        QString toDraw = text;
+        QRectF drawRect = textRect;
+
+        if (!rectInsidePolygon(textRect, triangle)) {
+            toDraw = fallback;
+            qreal fW = fm.horizontalAdvance(toDraw);
+            qreal fH = fm.height();
+            QPointF fTopLeft(triBounds.left() + TEXT_MARGIN_LEFT, triBounds.center().y() - fH / 2.0);
+            drawRect = QRectF(fTopLeft, QSizeF(fW, fH));
+        }
+
+        painter->drawText(drawRect, Qt::AlignCenter, toDraw);
+    }
+
+    if(isSelected() && allowMouseResize()) {
+        paintResizeHandles(*painter);
+    }
+
+    if(isSelected() && allowMouseRotate()) {
+        paintRotateHandle(*painter);
+    }
 }
 
 Solver::BlockType BlockGain::getSolverBlockType() const {

@@ -1,5 +1,4 @@
 #include <QtTest/QtTest>
-#include <mainwindow.hpp>
 
 #include <items/blocks/blockintegrator.hpp>
 #include <items/blocks/blockderivator.hpp>

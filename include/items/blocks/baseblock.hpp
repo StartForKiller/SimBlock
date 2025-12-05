@@ -63,6 +63,7 @@ class BaseBlock : public QSchematic::Items::Node {
         void addProperty(const Properties::BlockProperty &property);
 
         void setupConnectors(QVector<ConnectorAttribute> &connectorAttributes);
+        BaseBlockConnector *getConnector(bool input, int index);
 
     public:
         const QVector<Properties::BlockProperty> &properties() const { return _properties; }

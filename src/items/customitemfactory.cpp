@@ -10,6 +10,7 @@
 #include <items/blocks/blockdiv.hpp>
 #include <items/blocks/blocktf.hpp>
 #include <items/blocks/blockderivator.hpp>
+#include <items/blocks/blocksubsystem.hpp>
 
 #include <items/customitemfactory.hpp>
 #include <items/fancywire.hpp>
@@ -53,6 +54,9 @@ std::shared_ptr<QSchematic::Items::Item> CustomItemFactory::from_container(const
 
         case ItemType::BlockDerivatorType:
             return std::make_shared<BlockDerivator>();
+
+        case ItemType::BlockSubsystemType:
+            return std::make_shared<BlockSubsystem>();
 
         case ItemType::FancyWireType:
             return std::make_shared<FancyWire>();

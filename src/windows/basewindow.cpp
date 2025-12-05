@@ -1,4 +1,4 @@
-#include <mainwindow.hpp>
+#include <windows/basewindow.hpp>
 #include <items/customitemfactory.hpp>
 #include <items/blocks/baseblock.hpp>
 #include <items/blocks/baseblockconnector.hpp>
@@ -7,8 +7,6 @@
 #include <items/widgets/dial.hpp>
 #include <library/widget.hpp>
 #include <netlist/widget.hpp>
-
-#include <solver/simulationworker.hpp>
 
 #include <gpds/archiver_xml.hpp>
 #include <qschematic/scene.hpp>
@@ -40,15 +38,9 @@
 #include <memory>
 #include <sstream>
 
-const QString FILE_FILTERS = "XML (*.xml)";
+using namespace Windows;
 
-static MainWindow *_instance;
-
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
-    Q_INIT_RESOURCE(icons);
-
-    _instance = this;
-
+BaseWindow::BaseWindow(QWidget *parent) : QMainWindow(parent) {
     auto func = std::bind(&CustomItemFactory::from_container, std::placeholders::_1);
     QSchematic::Items::Factory::instance().setCustomItemsFactory(func);
 
@@ -74,11 +66,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
                 break;
         }
     });
-    connect(_scene, &QSchematic::Scene::netlistChanged, [this]() {
-        //qDebug() << "Netlist changed";
-
-        //generateNetlist();
-    });
 
     _view = new QSchematic::View(this);
     _view->setSettings(_settings);
@@ -96,12 +83,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     undoDockWiget->setWindowTitle("Command History");
     undoDockWiget->setWidget(_undoView);
     addDockWidget(Qt::LeftDockWidgetArea, undoDockWiget);
-
-    _netlistViewerWidget = new ::Netlist::Widget(this);
-    QDockWidget *netlistViewerDockWidget = new QDockWidget;
-    netlistViewerDockWidget->setWindowTitle(QStringLiteral("Netlist Viewer"));
-    netlistViewerDockWidget->setWidget(_netlistViewerWidget);
-    addDockWidget(Qt::LeftDockWidgetArea, netlistViewerDockWidget);
 
     {
         QMenu *fileMenu = new QMenu(QStringLiteral("&File"), this);
@@ -145,108 +126,25 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     setWindowTitle("SimBlock");
     resize(WINDOW_WIDTH, WINDOW_HEIGHT);
-#ifdef WINDOW_MAXIMIZE
-    setWindowState(Qt::WindowMaximized);
-#endif
-
-    _simulationWorkerThread = new QThread();
-    _simulationWorker = new Solver::SimulationWorker();
-    _simulationWorker->moveToThread(_simulationWorkerThread);
-
-    connect(_simulationWorker, &Solver::SimulationWorker::sampleGenerated, this, [this](double t, QMap<QString, Solver::Signal> values) {
-        for(const auto& node : _scene->nodes()) {
-            if(!node) continue;
-
-            auto scopeNode = dynamic_cast<Blocks::BlockScope *>(node.get());
-            if(scopeNode != nullptr) {
-                scopeNode->onNewSample(t, values);
-            }
-        }
-    });
-    connect(_simulationWorkerThread, &QThread::started, _simulationWorker, &Solver::SimulationWorker::simulate);
-    connect(_simulationWorker, &Solver::SimulationWorker::simulationFinished, this, [this]() {
-        _simulationWorkerThread->quit();
-        _simulating = false;
-    });
-
-    main();
 }
 
-bool MainWindow::save() {
-    const std::filesystem::path path = QFileDialog::getSaveFileName(this, "Save to file", QDir::homePath(), FILE_FILTERS).toStdString();
-    if(path.empty())
-        return false;
-
-    const auto &[success, message] = gpds::to_file<gpds::archiver_xml>(path, *_scene);
-    if(!success) {
-        qWarning() << "could not save to file: " << QString::fromStdString(message);
-        return false;
-    }
-
-    return true;
-}
-
-bool MainWindow::load() {
-    QString path = QFileDialog::getOpenFileName(this, "Load from file", QDir::homePath(), FILE_FILTERS);
-    if(path.isEmpty())
-        return false;
-
-    return load(path);
-}
-
-bool MainWindow::load(const QString &filepath) {
-    _scene->clear();
-
-    QFile file(filepath);
-    file.open(QFile::ReadOnly);
-    if(!file.isOpen())
-        return false;
-
-    std::stringstream stream;
-    stream << file.readAll().data();
-
-    const auto &[success, message] = gpds::from_stream<gpds::archiver_xml>(stream, *_scene, QSchematic::Scene::gpds_name);
-    if(!success) {
-        qDebug() << "MainWindow::load(): Could not load scene: " << QString::fromStdString(message);
-        return false;
-    }
-
-    file.close();
-
-    return true;
-}
-
-void MainWindow::main() {
-    _scene->clear();
-    _scene->setSceneRect(-500, -500, 3000, 3000);
-}
-
-void MainWindow::createActions() {
+void BaseWindow::createActions() {
     _actionOpen = new QAction(this);
     _actionOpen->setText("Open");
     _actionOpen->setIcon(QIcon(":/folder_open.svg"));
     _actionOpen->setToolTip("Open a file");
     _actionOpen->setShortcut(QKeySequence::Open);
-    connect(_actionOpen, &QAction::triggered, [this]{
-        load();
-    });
 
     _actionSave = new QAction(this);
     _actionSave->setText("Save");
     _actionSave->setIcon(QIcon(":/save.svg"));
     _actionSave->setToolTip("Save to a file");
     _actionSave->setShortcut(QKeySequence::Save);
-    connect(_actionSave, &QAction::triggered, [this]{
-        save();
-    });
 
     _actionPrint = new QAction(this);
     _actionPrint->setText("Print");
     _actionPrint->setIcon(QIcon(":/print.svg"));
     _actionPrint->setShortcut(QKeySequence::Print);
-    connect(_actionPrint, &QAction::triggered, [this]{
-        //TODO
-    });
 
     _actionUndo = _scene->undoStack()->createUndoAction(this, QStringLiteral("Undo"));
     _actionUndo->setIcon(QIcon(":/undo.svg"));
@@ -263,17 +161,11 @@ void MainWindow::createActions() {
     _actionModeNormal->setToolTip("Change to the normal mode (allows to move components).");
     _actionModeNormal->setCheckable(true);
     _actionModeNormal->setChecked(true);
-    connect(_actionModeNormal, &QAction::triggered, [this]{
-        _scene->setMode(QSchematic::Scene::NormalMode);
-    });
 
     _actionModeWire = new QAction("Wire Mode", this);
     _actionModeWire->setIcon(QIcon(":/mode_wire.svg"));
     _actionModeWire->setToolTip("Change to the wire mode (allows to draw wires).");
     _actionModeWire->setCheckable(true);
-    connect(_actionModeWire, &QAction::triggered, [this]{
-        _scene->setMode(QSchematic::Scene::WireMode);
-    });
 
     QActionGroup *actionGroupMode = new QActionGroup(this);
     actionGroupMode->addAction(_actionModeNormal);
@@ -284,130 +176,47 @@ void MainWindow::createActions() {
     _actionShowGrid->setCheckable(true);
     _actionShowGrid->setChecked(_settings.showGrid);
     _actionShowGrid->setToolTip("Toggle grid visibility");
-    connect(_actionShowGrid, &QAction::toggled, [this](bool checked){
-        _settings.showGrid = checked;
-        settingsChanged();
-    });
 
     _actionFitAll = new QAction("Fit All", this);
     _actionFitAll->setIcon(QIcon(":/fit_all.svg"));
     _actionFitAll->setToolTip("Center view on all items");
-    connect(_actionFitAll, &QAction::triggered, [this]{_view->fitInView();});
 
     _actionRouteStraightAngles = new QAction("Wire angles", this);
     _actionRouteStraightAngles->setIcon(QIcon( ":/wire_rightangle.svg"));
     _actionRouteStraightAngles->setCheckable(true);
     _actionRouteStraightAngles->setChecked(_settings.routeStraightAngles);
-    connect(_actionRouteStraightAngles, &QAction::toggled, [this](bool checked){
-        _settings.routeStraightAngles = checked;
-        _settings.preserveStraightAngles = checked;
-        settingsChanged();
-    });
 
     _actionGenerateNetlist = new QAction("Generate netlist", this);
     _actionGenerateNetlist->setIcon(QIcon(":/netlist.svg"));
-    connect(_actionGenerateNetlist, &QAction::triggered, [this]{
-        generateNetlist();
-    });
 
     _actionSolve = new QAction("Solve", this);
     _actionSolve->setIcon(QIcon(":/run.svg"));
-    connect(_actionSolve, &QAction::triggered, [this]{
-        solve();
-    });
 
     _actionTimeStep = new QAction("Timestep", this);
     _actionTimeStep->setText("Timestep ...");
-    connect(_actionTimeStep, &QAction::triggered, [this] {
-        bool ok = false;
-        const double newDouble = QInputDialog::getDouble(
-            nullptr,
-            "Set TimeStep Value",
-            "New timestep value",
-            _timeStep,
-            0.000000001, 2147483647, 5,
-            &ok
-        );
-        if(!ok)
-            return;
-
-        _timeStep = newDouble;
-    });
 
     _actionTimeToSimulate = new QAction("Run Time", this);
     _actionTimeToSimulate->setText("Run Time ...");
-    connect(_actionTimeToSimulate, &QAction::triggered, [this] {
-        bool ok = false;
-        const double newDouble = QInputDialog::getDouble(
-            nullptr,
-            "Set Run Time Value",
-            "New run time value",
-            _timeToSimulate,
-            0, 2147483647, 5,
-            &ok
-        );
-        if(!ok)
-            return;
-
-        _timeToSimulate = newDouble;
-    });
 
     _actionClear = new QAction("Clear", this);
     _actionClear->setIcon(QIcon(":/clean.svg"));
-    connect(_actionClear, &QAction::triggered, [this]{
-        Q_ASSERT(_scene);
-
-        _scene->clear();
-    });
 
     _actionDebugMode = new QAction("Debug", this);
     _actionDebugMode->setCheckable(true);
     _actionDebugMode->setIcon(QIcon(":/bug.svg"));
     _actionDebugMode->setChecked(_settings.debug);
-    connect(_actionDebugMode, &QAction::toggled, [this](bool checked){
-        _settings.debug = checked;
-        settingsChanged();
-    });
 }
 
-void MainWindow::settingsChanged() {
+void BaseWindow::setSettings(QSchematic::Settings settings) {
+    _settings = settings;
+    settingsChanged();
+}
+
+void BaseWindow::settingsChanged() {
     _view->setSettings(_settings);
     _scene->setSettings(_settings);
 }
 
-void MainWindow::generateNetlist() {
-    auto *netlist = new QSchematic::Netlist<Blocks::BaseBlock *, Blocks::BaseBlockConnector*>();
-    QSchematic::NetlistGenerator::generate(*netlist, *_scene);
-
-    _simulationWorker->setNetlist(netlist);
-
-    Q_ASSERT(_netlistViewerWidget);
-    _netlistViewerWidget->setNetlist(*netlist);
-}
-
-void MainWindow::solve() {
-    if(_simulating) return;
-    generateNetlist();
-
-    for(const auto& node : _scene->nodes()) {
-        if(!node) continue;
-
-        auto scopeNode = dynamic_cast<Blocks::BlockScope *>(node.get());
-        if(scopeNode != nullptr) {
-            scopeNode->onStartSimulation();
-        }
-    }
-
-    _simulationWorker->setTimeParameters(_timeStep, _timeToSimulate);
-
-    _simulating = true;
-    _simulationWorkerThread->start();
-}
-
-MainWindow *MainWindow::instance() {
-    return _instance;
-}
-
-QSchematic::Scene *MainWindow::scene() {
+QSchematic::Scene *BaseWindow::scene() {
     return _scene;
 }

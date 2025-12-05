@@ -67,24 +67,34 @@ void FancyWire::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     if(!wireManager)
         return;
 
-    QPen pen(Qt::NoPen);
+    for (const auto& conn: scene()->connectors()) {
+        const auto cr = scene()->wire_manager()->attached_wire(conn.get());
+        if (!cr)
+            continue;
 
-    QBrush brush;
-    brush.setColor(Qt::black);
-    brush.setStyle(Qt::SolidPattern);
-
-    painter->setPen(pen);
-    painter->setBrush(brush);
-
-    const auto &points = pointsRelative();
-
-    if(points.size() != points_count())
-        return;
-
-    for(int i = 0; i < points_count(); i++) {
-        if(wireManager->point_is_attached(this, i))
-            painter->drawEllipse(points.at(i), SIZE, SIZE);
+        if (cr->wire == this) {
+            conn.get()->update();
+        }
     }
+
+    //QPen pen(Qt::NoPen);
+//
+    //QBrush brush;
+    //brush.setColor(Qt::black);
+    //brush.setStyle(Qt::SolidPattern);
+//
+    //painter->setPen(pen);
+    //painter->setBrush(brush);
+//
+    //const auto &points = pointsRelative();
+//
+    //if(points.size() != points_count())
+    //    return;
+//
+    //for(int i = 0; i < points_count(); i++) {
+    //    if(wireManager->point_is_attached(this, i))
+    //        painter->drawEllipse(points.at(i), SIZE, SIZE);
+    //}
 }
 
 void FancyWire::copyAttributes(FancyWire &dest) const {

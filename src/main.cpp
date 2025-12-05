@@ -2,13 +2,13 @@
 
 #include <QApplication>
 
-#include <mainwindow.hpp>
+#include <windows/mainwindow.hpp>
 
 int main(int argc, char *argv[]) {
     printf("Hello World!\n");
 
     QApplication app(argc, argv);
-    MainWindow window;
+    Windows::MainWindow window;
     window.show();
 
     return app.exec();

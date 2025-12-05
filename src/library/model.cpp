@@ -9,6 +9,7 @@
 #include <items/blocks/blockdiv.hpp>
 #include <items/blocks/blocktf.hpp>
 #include <items/blocks/blockderivator.hpp>
+#include <items/blocks/blocksubsystem.hpp>
 
 #include <items/widgets/dial.hpp>
 #include <items/widgets/textedit.hpp>
@@ -64,6 +65,7 @@ void Model::createModel() {
     addTreeItem("Div", QIcon(), new Blocks::BlockDiv, rootOperations);
     addTreeItem("Transfer Function", QIcon(), new Blocks::BlockTF, rootOperations);
     addTreeItem("Scope", QIcon(), new Blocks::BlockScope, rootOperations);
+    addTreeItem("Subsystem", QIcon(), new Blocks::BlockSubsystem, rootOperations);
 
     addTreeItem("Dial", QIcon(), new ::Items::Widgets::Dial, rootWidgets);
     addTreeItem("TextEdit", QIcon(), new ::Items::Widgets::TextEdit, rootWidgets);

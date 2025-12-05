@@ -5,12 +5,7 @@ add_subdirectory(library)
 add_subdirectory(netlist)
 add_subdirectory(scope)
 add_subdirectory(solver)
-
-target_sources(
-    ${target_library}
-    PRIVATE
-        mainwindow.cpp
-)
+add_subdirectory(windows)
 
 target_compile_features(
     ${target_library}

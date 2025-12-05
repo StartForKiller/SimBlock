@@ -4,7 +4,7 @@
 #include <items/popup/popup_baseblock.hpp>
 #include <commands/node_add_connector.hpp>
 
-#include <mainwindow.hpp>
+#include <windows/mainwindow.hpp>
 
 #include <qschematic/scene.hpp>
 #include <qschematic/items/label.hpp>
@@ -322,7 +322,7 @@ QString BaseBlock::getUnusedName(QString baseName) const {
 }
 
 bool BaseBlock::nameIsInUse(QString name) const {
-    auto _instance = MainWindow::instance();
+    auto _instance = Windows::MainWindow::instance();
     if(!_instance)
         return false;
 
@@ -346,6 +346,17 @@ void BaseBlock::setupConnectors(QVector<BaseBlock::ConnectorAttribute> &connecto
         connector->label()->setVisible(false);
         addConnector(connector);
     }
+}
+
+BaseBlockConnector *BaseBlock::getConnector(bool input, int index) {
+    for(auto &c : connectors()) {
+        auto bc = dynamic_cast<BaseBlockConnector *>(c.get());
+        if(!bc) continue;
+
+        if(input == bc->isInput() && bc->index() == index) return bc;
+    }
+
+    return nullptr;
 }
 
 void BaseBlock::addProperty(const Properties::BlockProperty &property) {
