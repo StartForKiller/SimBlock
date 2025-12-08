@@ -4,13 +4,14 @@
 #include <QDebug>
 #include <QEvent>
 #include <qschematic/scene.hpp>
-#include <private/qobject_p.h>
 
 #include <windows/mainwindow.hpp>
 
 //#define DEBUG_QT_EVENTS 1
 
 #ifdef DEBUG_QT_EVENTS
+#include <private/qobject_p.h>
+
 class EventLogger : public QObject {
 public:
     bool eventFilter(QObject *obj, QEvent *event) override {

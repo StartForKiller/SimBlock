@@ -68,7 +68,7 @@ target_link_libraries(
     ${target}
     PRIVATE
         Qt::Core
-        Qt::CorePrivate
+        #Qt::CorePrivate
         Qt::Widgets
         qschematic::qschematic-static
         ${target_library}
