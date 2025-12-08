@@ -9,7 +9,7 @@ class BlockConstant : public BaseBlock {
     Q_DISABLE_COPY_MOVE(BlockConstant)
 
     public:
-        explicit BlockConstant(QGraphicsItem *parent = nullptr);
+        explicit BlockConstant(Windows::BaseWindow *window, QGraphicsItem *parent = nullptr);
         ~BlockConstant() override = default;
 
         gpds::container to_container() const override;

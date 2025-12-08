@@ -16,8 +16,8 @@
 
 using namespace Blocks;
 
-BlockGain::BlockGain(QGraphicsItem *parent) :
-    BaseBlock(::ItemType::BlockGainType, parent)
+BlockGain::BlockGain(Windows::BaseWindow *window, QGraphicsItem *parent) :
+    BaseBlock(::ItemType::BlockGainType, window, parent)
 {
     setSize(40, 40);
     setBaseName(QStringLiteral("Gain"));
@@ -55,7 +55,7 @@ void BlockGain::from_container(const gpds::container &container) {
 }
 
 std::shared_ptr<QSchematic::Items::Item> BlockGain::deepCopy() const {
-    auto clone = std::make_shared<BlockGain>(parentItem());
+    auto clone = std::make_shared<BlockGain>(parentWindow(), parentItem());
     copyAttributes(*clone);
 
     return clone;

@@ -4,13 +4,13 @@
 
 namespace Blocks {
 
-class BlockDerivator : public BaseBlock {
+class BlockInput : public BaseBlock {
     Q_OBJECT
-    Q_DISABLE_COPY_MOVE(BlockDerivator)
+    Q_DISABLE_COPY_MOVE(BlockInput)
 
     public:
-        explicit BlockDerivator(Windows::BaseWindow *window = nullptr, QGraphicsItem *parent = nullptr);
-        ~BlockDerivator() override = default;
+        explicit BlockInput(Windows::BaseWindow *window = nullptr, QGraphicsItem *parent = nullptr);
+        ~BlockInput() override = default;
 
         gpds::container to_container() const override;
         void from_container(const gpds::container &container) override;
@@ -18,12 +18,13 @@ class BlockDerivator : public BaseBlock {
 
         Solver::BlockType getSolverBlockType() const override;
         void solveAlgebraic(const QVector<Solver::Signal> &in, QVector<Solver::Signal> &out, const QVector<Solver::Signal> &states) override;
-        void solveDerivative(const QVector<Solver::Signal> &in, const QVector<Solver::Signal> &states, QVector<Solver::Signal> &xdot) override;
+
+        int index() { return _index; }
 
     private:
-        void copyAttributes(BlockDerivator &dest) const;
+        void copyAttributes(BlockInput &dest) const;
 
-        double _N = 100.0;
+        int _index = 0;
 };
 
 }

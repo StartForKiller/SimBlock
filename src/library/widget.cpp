@@ -6,8 +6,11 @@
 
 using namespace Library;
 
-Widget::Widget(QWidget *parent) : QWidget(parent) {
-    _model = new Model(this);
+Widget::Widget(Windows::BaseWindow *window, QWidget *parent) :
+    _window(window),
+    QWidget(parent)
+{
+    _model = new Model(_window, this);
 
     _view = new View(this);
     _view->setModel(_model);

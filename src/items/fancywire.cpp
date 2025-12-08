@@ -60,37 +60,27 @@ std::shared_ptr<QSchematic::Items::Item> FancyWire::deepCopy() const {
 void FancyWire::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
     QSchematic::Items::WireRoundedCorners::paint(painter, option, widget);
 
-    if(!scene())
-        return;
+    //if(!scene())
+    //    return;
 
-    const auto &wireManager = scene()->wire_manager();
-    if(!wireManager)
-        return;
-
-    for (const auto& conn: scene()->connectors()) {
-        const auto cr = scene()->wire_manager()->attached_wire(conn.get());
-        if (!cr)
-            continue;
-
-        if (cr->wire == this) {
-            conn.get()->update();
-        }
-    }
+    //const auto &wireManager = scene()->wire_manager();
+    //if(!wireManager)
+    //    return;
 
     //QPen pen(Qt::NoPen);
-//
+
     //QBrush brush;
     //brush.setColor(Qt::black);
     //brush.setStyle(Qt::SolidPattern);
-//
+
     //painter->setPen(pen);
     //painter->setBrush(brush);
-//
+
     //const auto &points = pointsRelative();
-//
+
     //if(points.size() != points_count())
     //    return;
-//
+
     //for(int i = 0; i < points_count(); i++) {
     //    if(wireManager->point_is_attached(this, i))
     //        painter->drawEllipse(points.at(i), SIZE, SIZE);

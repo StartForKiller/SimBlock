@@ -6,8 +6,8 @@
 
 using namespace Blocks;
 
-BlockIntegrator::BlockIntegrator(QGraphicsItem *parent) :
-    BaseBlock(::ItemType::BlockIntegratorType, parent)
+BlockIntegrator::BlockIntegrator(Windows::BaseWindow *window, QGraphicsItem *parent) :
+    BaseBlock(::ItemType::BlockIntegratorType, window, parent)
 {
     setSize(80, 80);
     setBaseName(QStringLiteral("Integrator"));
@@ -34,7 +34,7 @@ void BlockIntegrator::from_container(const gpds::container &container) {
 }
 
 std::shared_ptr<QSchematic::Items::Item> BlockIntegrator::deepCopy() const {
-    auto clone = std::make_shared<BlockIntegrator>(parentItem());
+    auto clone = std::make_shared<BlockIntegrator>(parentWindow(), parentItem());
     copyAttributes(*clone);
 
     return clone;

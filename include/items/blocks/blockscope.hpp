@@ -13,7 +13,7 @@ class BlockScope : public BaseBlock {
     Q_DISABLE_COPY_MOVE(BlockScope)
 
     public:
-        explicit BlockScope(QGraphicsItem *parent = nullptr);
+        explicit BlockScope(Windows::BaseWindow *window = nullptr, QGraphicsItem *parent = nullptr);
         ~BlockScope() override = default;
 
         gpds::container to_container() const override;

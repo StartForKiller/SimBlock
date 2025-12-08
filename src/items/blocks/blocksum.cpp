@@ -6,8 +6,8 @@
 
 using namespace Blocks;
 
-BlockSum::BlockSum(QGraphicsItem *parent) :
-    BaseBlock(::ItemType::BlockSumType, parent)
+BlockSum::BlockSum(Windows::BaseWindow *window, QGraphicsItem *parent) :
+    BaseBlock(::ItemType::BlockSumType, window, parent)
 {
     setSize(80, 80);
     setBaseName(QStringLiteral("Sum"));
@@ -35,7 +35,7 @@ void BlockSum::from_container(const gpds::container &container) {
 }
 
 std::shared_ptr<QSchematic::Items::Item> BlockSum::deepCopy() const {
-    auto clone = std::make_shared<BlockSum>(parentItem());
+    auto clone = std::make_shared<BlockSum>(parentWindow(), parentItem());
     copyAttributes(*clone);
 
     return clone;

@@ -13,6 +13,10 @@ namespace QSchematic::Items {
     class Label;
 };
 
+namespace Windows {
+    class BaseWindow;
+}
+
 namespace Blocks {
 
 class BaseBlock : public QSchematic::Items::Node {
@@ -28,8 +32,10 @@ class BaseBlock : public QSchematic::Items::Node {
         };
 
     public:
-        explicit BaseBlock(int type = ::ItemType::BaseBlockType, QGraphicsItem *parent = nullptr);
+        explicit BaseBlock(int type = ::ItemType::BaseBlockType, Windows::BaseWindow *window = nullptr, QGraphicsItem *parent = nullptr);
         ~BaseBlock() override;
+
+        Windows::BaseWindow *parentWindow() const { return _window; }
 
         gpds::container to_container() const override;
         void from_container(const gpds::container &container) override;
@@ -39,9 +45,13 @@ class BaseBlock : public QSchematic::Items::Node {
         void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
         void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) override;
 
+        BaseBlockConnector *getConnector(bool input, int index);
+
         void alignLabel();
         std::shared_ptr<QSchematic::Items::Label> label() const;
         void setText(const QString &text);
+        void setSolverPrefix(QString prefix) { _solverPrefix = prefix; }
+        QString solverName();
         QString text() const;
         QString baseName() const { return _baseName; }
         QString description() const { return _description; }
@@ -63,16 +73,18 @@ class BaseBlock : public QSchematic::Items::Node {
         void addProperty(const Properties::BlockProperty &property);
 
         void setupConnectors(QVector<ConnectorAttribute> &connectorAttributes);
-        BaseBlockConnector *getConnector(bool input, int index);
 
     public:
         const QVector<Properties::BlockProperty> &properties() const { return _properties; }
         QVector<Properties::BlockProperty> &properties() { return _properties; }
 
     private:
+        Windows::BaseWindow *_window;
+
         std::shared_ptr<QSchematic::Items::Label> _label;
 
         QString _baseName;
+        QString _solverPrefix = QStringLiteral("");
         QString _description;
         QVector<Properties::BlockProperty> _properties;
 };

@@ -10,6 +10,8 @@
 #include <items/blocks/blocktf.hpp>
 #include <items/blocks/blockderivator.hpp>
 #include <items/blocks/blocksubsystem.hpp>
+#include <items/blocks/blockinput.hpp>
+#include <items/blocks/blockoutput.hpp>
 
 #include <items/widgets/dial.hpp>
 #include <items/widgets/textedit.hpp>
@@ -21,7 +23,8 @@
 
 using namespace Library;
 
-Model::Model(QObject *parent) :
+Model::Model(Windows::BaseWindow *window, QObject *parent) :
+    _window(window),
     QAbstractItemModel(parent)
 {
     _rootItem = new model_item(Root, nullptr);
@@ -57,15 +60,17 @@ void Model::createModel() {
 
     //TODO
 
-    addTreeItem("Integrator", QIcon(), new Blocks::BlockIntegrator, rootOperations);
-    addTreeItem("Derivator", QIcon(), new Blocks::BlockDerivator, rootOperations);
-    addTreeItem("Constant", QIcon(), new Blocks::BlockConstant, rootOperations);
-    addTreeItem("Gain", QIcon(), new Blocks::BlockGain, rootOperations);
-    addTreeItem("Sum", QIcon(), new Blocks::BlockSum, rootOperations);
-    addTreeItem("Div", QIcon(), new Blocks::BlockDiv, rootOperations);
-    addTreeItem("Transfer Function", QIcon(), new Blocks::BlockTF, rootOperations);
-    addTreeItem("Scope", QIcon(), new Blocks::BlockScope, rootOperations);
-    addTreeItem("Subsystem", QIcon(), new Blocks::BlockSubsystem, rootOperations);
+    addTreeItem("Integrator", QIcon(), new Blocks::BlockIntegrator(_window), rootOperations);
+    addTreeItem("Derivator", QIcon(), new Blocks::BlockDerivator(_window), rootOperations);
+    addTreeItem("Constant", QIcon(), new Blocks::BlockConstant(_window), rootOperations);
+    addTreeItem("Gain", QIcon(), new Blocks::BlockGain(_window), rootOperations);
+    addTreeItem("Sum", QIcon(), new Blocks::BlockSum(_window), rootOperations);
+    addTreeItem("Div", QIcon(), new Blocks::BlockDiv(_window), rootOperations);
+    addTreeItem("Transfer Function", QIcon(), new Blocks::BlockTF(_window), rootOperations);
+    addTreeItem("Scope", QIcon(), new Blocks::BlockScope(_window), rootOperations);
+    addTreeItem("Subsystem", QIcon(), new Blocks::BlockSubsystem(_window), rootOperations);
+    addTreeItem("Input", QIcon(), new Blocks::BlockInput(_window), rootOperations);
+    addTreeItem("Output", QIcon(), new Blocks::BlockOutput(_window), rootOperations);
 
     addTreeItem("Dial", QIcon(), new ::Items::Widgets::Dial, rootWidgets);
     addTreeItem("TextEdit", QIcon(), new ::Items::Widgets::TextEdit, rootWidgets);

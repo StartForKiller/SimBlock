@@ -16,8 +16,8 @@
 
 using namespace Blocks;
 
-BlockScope::BlockScope(QGraphicsItem *parent) :
-    BaseBlock(::ItemType::BlockScopeType, parent)
+BlockScope::BlockScope(Windows::BaseWindow *window, QGraphicsItem *parent) :
+    BaseBlock(::ItemType::BlockScopeType, window, parent)
 {
     setSize(80, 80);
     setBaseName(QStringLiteral("Scope"));
@@ -45,7 +45,7 @@ void BlockScope::from_container(const gpds::container &container) {
 }
 
 std::shared_ptr<QSchematic::Items::Item> BlockScope::deepCopy() const {
-    auto clone = std::make_shared<BlockScope>(parentItem());
+    auto clone = std::make_shared<BlockScope>(parentWindow(), parentItem());
     copyAttributes(*clone);
 
     return clone;

@@ -9,7 +9,7 @@ class BlockTF : public BaseBlock {
     Q_DISABLE_COPY_MOVE(BlockTF)
 
     public:
-        explicit BlockTF(QGraphicsItem *parent = nullptr);
+        explicit BlockTF(Windows::BaseWindow *window = nullptr, QGraphicsItem *parent = nullptr);
         ~BlockTF() override = default;
 
         gpds::container to_container() const override;

@@ -41,7 +41,8 @@
 using namespace Windows;
 
 BaseWindow::BaseWindow(QWidget *parent) : QMainWindow(parent) {
-    auto func = std::bind(&CustomItemFactory::from_container, std::placeholders::_1);
+    _itemFactory = new CustomItemFactory(this);
+    auto func = std::bind(&CustomItemFactory::from_container, _itemFactory, std::placeholders::_1);
     QSchematic::Items::Factory::instance().setCustomItemsFactory(func);
 
     _settings.debug = false;
@@ -71,7 +72,7 @@ BaseWindow::BaseWindow(QWidget *parent) : QMainWindow(parent) {
     _view->setSettings(_settings);
     _view->setScene(_scene);
 
-    _itemLibraryWidget = new Library::Widget(this);
+    _itemLibraryWidget = new Library::Widget(this, this);
     connect(_view, &QSchematic::View::zoomChanged, _itemLibraryWidget, &Library::Widget::setPixmapScale);
     QDockWidget *itemLibraryDock = new QDockWidget;
     itemLibraryDock->setWindowTitle("Items");
@@ -126,6 +127,15 @@ BaseWindow::BaseWindow(QWidget *parent) : QMainWindow(parent) {
 
     setWindowTitle("SimBlock");
     resize(WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    connect(_scene, &QSchematic::Scene::netlistChanged, [this]() {
+        for(auto conn : _scene->connectors()) {
+            auto connectorPtr = dynamic_cast<Blocks::BaseBlockConnector *>(conn.get());
+            if(connectorPtr == nullptr) continue;
+
+            connectorPtr->update();
+        }
+    });
 }
 
 void BaseWindow::createActions() {

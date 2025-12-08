@@ -9,6 +9,10 @@ namespace QSchematic {
     class Item;
 }
 
+namespace Windows {
+    class BaseWindow;
+}
+
 namespace Library {
 
 class Model : public QAbstractItemModel {
@@ -29,7 +33,7 @@ class Model : public QAbstractItemModel {
 
         using model_item = ModelItem<LibraryItems, ItemInfo>;
 
-        explicit Model(QObject *parent = nullptr);
+        explicit Model(Windows::BaseWindow *window = nullptr, QObject *parent = nullptr);
         ~Model() override;
 
         [[nodiscard]]
@@ -49,6 +53,7 @@ class Model : public QAbstractItemModel {
         void addTreeItem(const QString &name, const QIcon &icon, const QSchematic::Items::Item *item, model_item *parent);
 
         model_item *_rootItem = nullptr;
+        Windows::BaseWindow *_window = nullptr;
 };
 
 }

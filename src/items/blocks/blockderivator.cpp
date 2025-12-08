@@ -6,8 +6,8 @@
 
 using namespace Blocks;
 
-BlockDerivator::BlockDerivator(QGraphicsItem *parent) :
-    BaseBlock(::ItemType::BlockDerivatorType, parent)
+BlockDerivator::BlockDerivator(Windows::BaseWindow *window, QGraphicsItem *parent) :
+    BaseBlock(::ItemType::BlockDerivatorType, window, parent)
 {
     setSize(80, 80);
     setBaseName(QStringLiteral("Derivator"));
@@ -42,7 +42,7 @@ void BlockDerivator::from_container(const gpds::container &container) {
 }
 
 std::shared_ptr<QSchematic::Items::Item> BlockDerivator::deepCopy() const {
-    auto clone = std::make_shared<BlockDerivator>(parentItem());
+    auto clone = std::make_shared<BlockDerivator>(parentWindow(), parentItem());
     copyAttributes(*clone);
 
     return clone;

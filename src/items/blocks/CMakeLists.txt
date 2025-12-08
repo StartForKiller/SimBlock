@@ -9,7 +9,9 @@ target_sources(
         blockderivator.cpp
         blockdiv.cpp
         blockgain.cpp
+        blockinput.cpp
         blockintegrator.cpp
+        blockoutput.cpp
         blockscope.cpp
         blocksubsystem.cpp
         blocksum.cpp

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <items/blocks/baseblock.hpp>
+#include <qschematic/netlist.hpp>
 
 namespace Windows {
     class SubsystemWindow;
@@ -13,7 +14,7 @@ class BlockSubsystem : public BaseBlock {
     Q_DISABLE_COPY_MOVE(BlockSubsystem)
 
     public:
-        explicit BlockSubsystem(QGraphicsItem *parent = nullptr);
+        explicit BlockSubsystem(Windows::BaseWindow *window = nullptr, QGraphicsItem *parent = nullptr);
         ~BlockSubsystem() override = default;
 
         gpds::container to_container() const override;
@@ -23,6 +24,9 @@ class BlockSubsystem : public BaseBlock {
         Solver::BlockType getSolverBlockType() const override;
 
         void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) override;
+
+        void recalculateInputsOutputs();
+        void populateNetlist(QSchematic::Netlist<Blocks::BaseBlock *, Blocks::BaseBlockConnector*> *netlist, QString parentPrefix);
 
     private:
         void copyAttributes(BlockSubsystem &dest) const;

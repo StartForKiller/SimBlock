@@ -6,8 +6,8 @@
 
 using namespace Blocks;
 
-BlockDiv::BlockDiv(QGraphicsItem *parent) :
-    BaseBlock(::ItemType::BlockDivType, parent)
+BlockDiv::BlockDiv(Windows::BaseWindow *window, QGraphicsItem *parent) :
+    BaseBlock(::ItemType::BlockDivType, window, parent)
 {
     setSize(80, 80);
     setBaseName(QStringLiteral("Div"));
@@ -35,7 +35,7 @@ void BlockDiv::from_container(const gpds::container &container) {
 }
 
 std::shared_ptr<QSchematic::Items::Item> BlockDiv::deepCopy() const {
-    auto clone = std::make_shared<BlockDiv>(parentItem());
+    auto clone = std::make_shared<BlockDiv>(parentWindow(), parentItem());
     copyAttributes(*clone);
 
     return clone;

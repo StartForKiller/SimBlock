@@ -15,8 +15,8 @@
 
 using namespace Blocks;
 
-BlockConstant::BlockConstant(QGraphicsItem *parent) :
-    BaseBlock(::ItemType::BlockConstantType, parent)
+BlockConstant::BlockConstant(Windows::BaseWindow *window, QGraphicsItem *parent) :
+    BaseBlock(::ItemType::BlockConstantType, window, parent)
 {
     setSize(40, 40);
     setBaseName(QStringLiteral("Constant"));
@@ -52,7 +52,7 @@ void BlockConstant::from_container(const gpds::container &container) {
 }
 
 std::shared_ptr<QSchematic::Items::Item> BlockConstant::deepCopy() const {
-    auto clone = std::make_shared<BlockConstant>(parentItem());
+    auto clone = std::make_shared<BlockConstant>(parentWindow(), parentItem());
     copyAttributes(*clone);
 
     return clone;

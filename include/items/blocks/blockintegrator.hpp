@@ -9,7 +9,7 @@ class BlockIntegrator : public BaseBlock {
     Q_DISABLE_COPY_MOVE(BlockIntegrator)
 
     public:
-        explicit BlockIntegrator(QGraphicsItem *parent = nullptr);
+        explicit BlockIntegrator(Windows::BaseWindow *window = nullptr, QGraphicsItem *parent = nullptr);
         ~BlockIntegrator() override = default;
 
         gpds::container to_container() const override;

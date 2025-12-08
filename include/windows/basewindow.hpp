@@ -34,6 +34,8 @@ namespace Solver
     class SimulationWorker;
 };
 
+class CustomItemFactory;
+
 namespace Windows {
 
 class BaseWindow : public QMainWindow {
@@ -50,6 +52,7 @@ class BaseWindow : public QMainWindow {
 
     public:
         QSchematic::Scene *scene();
+        QSchematic::View *view() { return _view; }
 
     protected:
         void settingsChanged();
@@ -57,6 +60,7 @@ class BaseWindow : public QMainWindow {
         QSchematic::Scene *_scene = nullptr;
         QSchematic::View *_view = nullptr;
         QSchematic::Settings _settings;
+        CustomItemFactory *_itemFactory = nullptr;
         Library::Widget *_itemLibraryWidget = nullptr;
         QUndoView* _undoView = nullptr;
 

@@ -3,6 +3,8 @@
 #include <items/blocks/baseblock.hpp>
 #include <items/blocks/baseblockconnector.hpp>
 #include <items/blocks/blocksubsystem.hpp>
+#include <items/blocks/blockinput.hpp>
+#include <items/blocks/blockoutput.hpp>
 #include <items/fancywire.hpp>
 #include <items/widgets/dial.hpp>
 #include <library/widget.hpp>
@@ -57,6 +59,34 @@ SubsystemWindow::SubsystemWindow(Blocks::BlockSubsystem *blockParent, QWidget *p
 #ifdef WINDOW_MAXIMIZE
     setWindowState(Qt::WindowMaximized);
 #endif
+
+    connect(_scene, &QSchematic::Scene::itemAdded, [this](std::shared_ptr<QSchematic::Items::Item> item) {
+        auto blockInputPtr = dynamic_cast<Blocks::BlockInput *>(item.get());
+        auto blockOutputPtr = dynamic_cast<Blocks::BlockOutput *>(item.get());
+        if(blockInputPtr != nullptr || blockOutputPtr != nullptr) _parent->recalculateInputsOutputs();
+    });
+
+    connect(_scene, &QSchematic::Scene::itemRemoved, [this](std::shared_ptr<QSchematic::Items::Item> item) {
+        auto blockInputPtr = dynamic_cast<Blocks::BlockInput *>(item.get());
+        auto blockOutputPtr = dynamic_cast<Blocks::BlockOutput *>(item.get());
+        if(blockInputPtr != nullptr || blockOutputPtr != nullptr) _parent->recalculateInputsOutputs();
+    });
+
+    connect(_actionModeNormal, &QAction::triggered, [this]{
+        _scene->setMode(QSchematic::Scene::NormalMode);
+    });
+
+    connect(_actionModeWire, &QAction::triggered, [this]{
+        _scene->setMode(QSchematic::Scene::WireMode);
+    });
+
+    connect(_actionFitAll, &QAction::triggered, [this]{_view->fitInView();});
+
+    connect(_actionClear, &QAction::triggered, [this]{
+        Q_ASSERT(_scene);
+
+        _scene->clear();
+    });
 }
 
 gpds::container SubsystemWindow::to_container() const {
@@ -66,12 +96,16 @@ gpds::container SubsystemWindow::to_container() const {
 void SubsystemWindow::from_container(const gpds::container &container) {
     _scene->from_container(container);
 
-    //Update inputs/outputs on parent here
-    for(auto &n : _scene->nodes()) {
-        auto *nodePtr = n.get();
-        auto *nodeBlockPtr = dynamic_cast<Blocks::BaseBlock *>(nodePtr);
-        if(nodeBlockPtr == nullptr) continue;
+    _parent->recalculateInputsOutputs();
+}
 
-        //TODO: Filter inputs/outputs
+QSchematic::Netlist<Blocks::BaseBlock *, Blocks::BaseBlockConnector*> *SubsystemWindow::generateNetlist(QString parentPrefix) {
+    auto *netlist = new QSchematic::Netlist<Blocks::BaseBlock *, Blocks::BaseBlockConnector*>();
+    QSchematic::NetlistGenerator::generate(*netlist, *_scene);
+
+    for(auto &net : netlist->nets) {
+        net.name = QStringLiteral("%1%2/%3").arg(parentPrefix, _parent->text(), net.name);
     }
+
+    return netlist;
 }

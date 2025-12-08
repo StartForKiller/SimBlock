@@ -3,6 +3,7 @@
 #include <items/blocks/baseblock.hpp>
 #include <items/blocks/baseblockconnector.hpp>
 #include <items/blocks/blockscope.hpp>
+#include <items/blocks/blocksubsystem.hpp>
 #include <items/fancywire.hpp>
 #include <items/widgets/dial.hpp>
 #include <library/widget.hpp>
@@ -236,6 +237,13 @@ void MainWindow::connectActions() {
 void MainWindow::generateNetlist() {
     auto *netlist = new QSchematic::Netlist<Blocks::BaseBlock *, Blocks::BaseBlockConnector*>();
     QSchematic::NetlistGenerator::generate(*netlist, *_scene);
+
+    for(auto &node : netlist->nodes) {
+        auto *blockSubsystem = dynamic_cast<Blocks::BlockSubsystem *>(node);
+        if(blockSubsystem == nullptr) continue;
+
+        blockSubsystem->populateNetlist(netlist, QStringLiteral(""));
+    }
 
     _simulationWorker->setNetlist(netlist);
 

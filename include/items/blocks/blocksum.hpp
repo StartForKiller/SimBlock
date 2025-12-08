@@ -9,7 +9,7 @@ class BlockSum : public BaseBlock {
     Q_DISABLE_COPY_MOVE(BlockSum)
 
     public:
-        explicit BlockSum(QGraphicsItem *parent = nullptr);
+        explicit BlockSum(Windows::BaseWindow *window = nullptr, QGraphicsItem *parent = nullptr);
         ~BlockSum() override = default;
 
         gpds::container to_container() const override;

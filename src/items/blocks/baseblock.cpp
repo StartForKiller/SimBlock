@@ -27,7 +27,8 @@ const qreal PEN_WIDTH = 1.5;
 const qreal SHADOW_OFFSET = 7;
 const qreal SHADOW_BLUR_RADIUS = 10;
 
-BaseBlock::BaseBlock(int type, QGraphicsItem *parent) :
+BaseBlock::BaseBlock(int type, Windows::BaseWindow *window, QGraphicsItem *parent) :
+    _window(window),
     QSchematic::Items::Node(type, parent)
 {
     _label = std::make_shared<QSchematic::Items::Label>();
@@ -80,7 +81,7 @@ void BaseBlock::from_container(const gpds::container &container) {
 }
 
 std::shared_ptr<QSchematic::Items::Item> BaseBlock::deepCopy() const {
-    auto clone = std::make_shared<BaseBlock>(::ItemType::BaseBlockType, parentItem());
+    auto clone = std::make_shared<BaseBlock>(::ItemType::BaseBlockType, parentWindow(), parentItem());
     copyAttributes(*clone);
 
     return clone;
@@ -284,6 +285,12 @@ QString BaseBlock::text() const {
     return _label->text();
 }
 
+QString BaseBlock::solverName() {
+    Q_ASSERT(_label);
+
+    return QStringLiteral("%1%2").arg(_solverPrefix, _label->text());
+}
+
 Solver::BlockType BaseBlock::getSolverBlockType() const {
     return {
         QStringLiteral("Base"),
@@ -322,7 +329,7 @@ QString BaseBlock::getUnusedName(QString baseName) const {
 }
 
 bool BaseBlock::nameIsInUse(QString name) const {
-    auto _instance = Windows::MainWindow::instance();
+    auto _instance = parentWindow();
     if(!_instance)
         return false;
 
@@ -341,6 +348,7 @@ bool BaseBlock::nameIsInUse(QString name) const {
 }
 
 void BaseBlock::setupConnectors(QVector<BaseBlock::ConnectorAttribute> &connectorAttributes) {
+    clearConnectors();
     for(const auto &c : connectorAttributes) {
         auto connector = std::make_shared<BaseBlockConnector>(c.point, c.name, c.input, c.index);
         connector->label()->setVisible(false);

@@ -1,7 +1,7 @@
 #include <solver/simulationworker.hpp>
 #include <solver/solver.hpp>
 
-//#define SIMBLOCK_DEBUG_SOLVER 1
+#define SIMBLOCK_DEBUG_SOLVER 1
 
 using namespace Solver;
 using namespace Blocks;
@@ -39,7 +39,7 @@ void SimulationWorker::simulate() {
                 printf("Solver (t=%f) Net(%s)=%lf\n",
                     t,
                     netName.toStdString().c_str(),
-                    netValue);
+                    std::get<double>(netValue.data));
             }
         #endif
     }

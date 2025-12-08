@@ -17,8 +17,8 @@
 
 using namespace Blocks;
 
-BlockTF::BlockTF(QGraphicsItem *parent) :
-    BaseBlock(::ItemType::BlockTFType, parent)
+BlockTF::BlockTF(Windows::BaseWindow *window, QGraphicsItem *parent) :
+    BaseBlock(::ItemType::BlockTFType, window, parent)
 {
     setSize(40, 40);
     setBaseName(QStringLiteral("Transfer Function"));
@@ -154,7 +154,7 @@ void BlockTF::from_container(const gpds::container &container) {
 }
 
 std::shared_ptr<QSchematic::Items::Item> BlockTF::deepCopy() const {
-    auto clone = std::make_shared<BlockTF>(parentItem());
+    auto clone = std::make_shared<BlockTF>(parentWindow(), parentItem());
     copyAttributes(*clone);
 
     return clone;

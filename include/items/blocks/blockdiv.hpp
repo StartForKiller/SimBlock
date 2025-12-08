@@ -9,7 +9,7 @@ class BlockDiv : public BaseBlock {
     Q_DISABLE_COPY_MOVE(BlockDiv)
 
     public:
-        explicit BlockDiv(QGraphicsItem *parent = nullptr);
+        explicit BlockDiv(Windows::BaseWindow *window = nullptr, QGraphicsItem *parent = nullptr);
         ~BlockDiv() override = default;
 
         gpds::container to_container() const override;

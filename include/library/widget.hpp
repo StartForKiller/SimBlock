@@ -6,6 +6,10 @@ namespace QSchematic::Items {
     class Item;
 };
 
+namespace Windows {
+    class BaseWindow;
+}
+
 namespace Library {
 
 class Model;
@@ -16,7 +20,7 @@ class Widget : public QWidget {
     Q_DISABLE_COPY_MOVE(Widget)
 
     public:
-        explicit Widget(QWidget *parent = nullptr);
+        explicit Widget(Windows::BaseWindow *window = nullptr, QWidget *parent = nullptr);
         ~Widget() override = default;
 
         void expandAll();
@@ -31,6 +35,7 @@ class Widget : public QWidget {
         void itemClickedSlot(const QModelIndex& index);
 
     private:
+        Windows::BaseWindow *_window = nullptr;
         Model *_model = nullptr;
         View *_view = nullptr;
 };

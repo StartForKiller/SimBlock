@@ -9,7 +9,7 @@ class BlockGain : public BaseBlock {
     Q_DISABLE_COPY_MOVE(BlockGain)
 
     public:
-        explicit BlockGain(QGraphicsItem *parent = nullptr);
+        explicit BlockGain(Windows::BaseWindow *window = nullptr, QGraphicsItem *parent = nullptr);
         ~BlockGain() override = default;
 
         gpds::container to_container() const override;

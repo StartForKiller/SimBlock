@@ -2,6 +2,7 @@
 #include <items/blocks/baseblock.hpp>
 #include <items/blocks/baseblockconnector.hpp>
 #include <items/blocks/blockscope.hpp>
+#include <items/blocks/blocksubsystem.hpp>
 
 #include <QQueue>
 
@@ -23,9 +24,11 @@ void SolverBase::setup(const QSchematic::Netlist<BaseBlock *, BaseBlockConnector
         _blocks.clear();
         for(auto &node : netlist.nodes) {
             auto blocktype = node->getSolverBlockType();
+            auto subsystemNode = dynamic_cast<BlockSubsystem *>(node);
+            if(subsystemNode != nullptr) continue; //Skip subsystem blocks
             _blocks.append({
                 node,
-                node->text(),
+                node->solverName(),
                 blocktype.name,
                 QVector<SignalID>(blocktype.numInputs),
                 QVector<SignalID>(blocktype.numOutputs)
@@ -63,7 +66,7 @@ void SolverBase::setup(const QSchematic::Netlist<BaseBlock *, BaseBlockConnector
 
             for(auto &[conn, node] : net.connectorNodePairs) {
                 for(auto &blk : _blocks) {
-                    if(blk.name != node->text()) continue;
+                    if(blk.name != node->solverName()) continue;
 
                     if(conn->isInput()) {
                         blk.inputs[conn->index()] = s;

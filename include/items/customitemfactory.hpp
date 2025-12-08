@@ -15,12 +15,19 @@ namespace gpds {
     class container;
 }
 
+namespace Windows {
+    class BaseWindow;
+}
+
 class CustomItemFactory {
     public:
-        static std::shared_ptr<QSchematic::Items::Item> from_container(const gpds::container &container);
+        CustomItemFactory(Windows::BaseWindow *window);
+
+        std::shared_ptr<QSchematic::Items::Item> from_container(const gpds::container &container);
 
     private:
-        CustomItemFactory() = default;
         CustomItemFactory(const CustomItemFactory &other) = default;
         CustomItemFactory(CustomItemFactory &&other) = default;
+
+        Windows::BaseWindow *_window;
 };

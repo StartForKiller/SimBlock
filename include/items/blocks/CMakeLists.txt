@@ -9,7 +9,9 @@ target_sources(
         blockderivator.hpp
         blockdiv.hpp
         blockgain.hpp
+        blockinput.hpp
         blockintegrator.hpp
+        blockoutput.hpp
         blockscope.hpp
         blocksubsystem.hpp
         blocksum.hpp
