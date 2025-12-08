@@ -29,8 +29,15 @@ ScopeWindow::ScopeWindow(const QString &title, QWidget *parent) :
 
 void ScopeWindow::onNewSample(double t, Solver::Signal value) {
     if(Solver::isScalar(value)) {
-        _graph->addData(t, std::get<Solver::Signal::Scalar>(value.data));
+        auto data = std::get<Solver::Signal::Scalar>(value.data);
+        _graph->addData(t, data);
         _plot->xAxis->setRange(_plot->xAxis->range().lower, t + 0.5);
+        if(data > (_plot->yAxis->range().upper - 1)) {
+            _plot->yAxis->setRange(_plot->yAxis->range().lower, data + 1);
+        }
+        if(data < (_plot->yAxis->range().lower + 1)) {
+            _plot->yAxis->setRange(data - 1, _plot->yAxis->range().upper);
+        }
         _plot->replot(QCustomPlot::rpQueuedReplot);
     }
 }
