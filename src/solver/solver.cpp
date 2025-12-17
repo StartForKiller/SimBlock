@@ -182,7 +182,6 @@ void SolverBase::f_global(const QVector<Signal> &y, QVector<Signal> &xdot) {
         }
     }
 
-    //xdot.resize(y.size());
     for(auto &blk : _blocks) {
         auto &type = _blockTypes[blk.type];
         if(type.numStates == 0) continue;
