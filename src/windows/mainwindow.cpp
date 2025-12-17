@@ -8,6 +8,7 @@
 #include <items/widgets/dial.hpp>
 #include <library/widget.hpp>
 #include <netlist/widget.hpp>
+#include <windows/view.hpp>
 
 #include <solver/simulationworker.hpp>
 
@@ -238,7 +239,8 @@ void MainWindow::generateNetlist() {
     auto *netlist = new QSchematic::Netlist<Blocks::BaseBlock *, Blocks::BaseBlockConnector*>();
     QSchematic::NetlistGenerator::generate(*netlist, *_scene);
 
-    for(auto &node : netlist->nodes) {
+    auto netlistTemp = *netlist;
+    for(auto &node : netlistTemp.nodes) {
         auto *blockSubsystem = dynamic_cast<Blocks::BlockSubsystem *>(node);
         if(blockSubsystem == nullptr) continue;
 

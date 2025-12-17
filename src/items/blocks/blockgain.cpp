@@ -71,9 +71,9 @@ void BlockGain::sizeChangedEvent(QSizeF oldSize, QSizeF newSize) {
     BaseBlock::sizeChangedEvent(oldSize, newSize);
 
     auto c = getConnector(true, 0);
-    if(c) c->setPos(QPointF(0, newSize.height() / 2.0));
+    if(c) c->setPos(QPointF((isMirrored() && (mirrorOrientation() & (int)Qt::Horizontal) != 0) ? newSize.width() : 0.0, newSize.height() / 2.0));
     c = getConnector(false, 0);
-    if(c) c->setPos(QPointF(newSize.width(), newSize.height() / 2.0));
+    if(c) c->setPos(QPointF((isMirrored() && (mirrorOrientation() & (int)Qt::Horizontal) != 0) ? 0.0 : newSize.width(), newSize.height() / 2.0));
 }
 
 const QColor COLOR_BODY_FILL = QColor(QStringLiteral("#E0E0E0"));
@@ -95,7 +95,7 @@ void BlockGain::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     {
         QPointF triPoints[3];
 
-        QPointF a(0.0, 0.0), b(0.0, height()), c(width(), height()/2.0);
+        QPointF a(isMirrored() ? width() : 0.0, 0.0), b(isMirrored() ? width() : 0.0, height()), c(isMirrored() ? 0.0 : width(), height()/2.0);
         QPolygonF triangle;
         triangle << a << b << c;
 
@@ -125,7 +125,8 @@ void BlockGain::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         QSizeF textSize(textW, textH);
 
         QRectF triBounds = triangle.boundingRect();
-        QPointF topLeft(triBounds.left() + TEXT_MARGIN_LEFT, triBounds.center().y() - textH / 2.0);
+        qreal topLeftX = isMirrored() ? (triBounds.right() - textW - TEXT_MARGIN_LEFT) : (triBounds.left() + TEXT_MARGIN_LEFT);
+        QPointF topLeft(topLeftX, triBounds.center().y() - textH / 2.0);
         QRectF textRect(topLeft, textSize);
 
         auto rectInsidePolygon = [&](const QRectF &r, const QPolygonF &poly) -> bool {
@@ -147,7 +148,8 @@ void BlockGain::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
             toDraw = fallback;
             qreal fW = fm.horizontalAdvance(toDraw);
             qreal fH = fm.height();
-            QPointF fTopLeft(triBounds.left() + TEXT_MARGIN_LEFT, triBounds.center().y() - fH / 2.0);
+            topLeftX = isMirrored() ? (triBounds.right() - fW - TEXT_MARGIN_LEFT) : (triBounds.left() + TEXT_MARGIN_LEFT);
+            QPointF fTopLeft(topLeftX, triBounds.center().y() - fH / 2.0);
             drawRect = QRectF(fTopLeft, QSizeF(fW, fH));
         }
 
@@ -156,10 +158,6 @@ void BlockGain::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
     if(isSelected() && allowMouseResize()) {
         paintResizeHandles(*painter);
-    }
-
-    if(isSelected() && allowMouseRotate()) {
-        paintRotateHandle(*painter);
     }
 }
 

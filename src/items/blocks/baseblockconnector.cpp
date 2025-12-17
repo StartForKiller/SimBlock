@@ -16,7 +16,7 @@
 using namespace Blocks;
 
 #define SIZE (_settings.gridSize / 4)
-#define RECT (QRectF(-SIZE, -SIZE, SIZE, 2 * SIZE))
+#define RECT (QRectF(-SIZE, -SIZE, 2 * SIZE, 2 * SIZE))
 
 const QColor COLOR_BODY_FILL = QColor(Qt::black);
 const QColor COLOR_BODY_BORDER = QColor(Qt::black);
@@ -37,6 +37,7 @@ gpds::container BaseBlockConnector::to_container() const {
     root.add_value("connector", QSchematic::Items::Connector::to_container());
     root.add_value("isInput", _isInput);
     root.add_value<int>("index", _index);
+    root.add_value<int>("mirror_orientation", (int)_mirrorOrientation);
 
     return root;
 }
@@ -45,6 +46,8 @@ void BaseBlockConnector::from_container(const gpds::container &container) {
     QSchematic::Items::Connector::from_container(*container.get_value<gpds::container *>("connector").value());
     _isInput = container.get_value<bool>("isInput").value();
     _index = container.get_value<int>("index").value_or(0);
+    _mirrorOrientation = (uint)container.get_value<int>("mirror_orientation").value_or(0);
+    _mirrored = _mirrorOrientation != 0;
 }
 
 std::shared_ptr<QSchematic::Items::Item> BaseBlockConnector::deepCopy() const {
@@ -58,10 +61,39 @@ std::unique_ptr<QWidget> BaseBlockConnector::popup() const {
     return std::make_unique<PopupBaseBlockConnector>(*this);
 }
 
+void BaseBlockConnector::update() {
+    // The item class sets the origin to the center of the bounding box
+    // but in this case we want to rotate around the center of the body
+    setTransformOriginPoint(boundingRect().center());
+    QGraphicsObject::update();
+}
+
 QRectF BaseBlockConnector::boundingRect() const {
     qreal adj = 1.5;
 
     return RECT.adjusted(-adj, -adj, adj, adj);
+}
+
+void BaseBlockConnector::mirrorHorizontal(qreal width) {
+    if(!(_mirrorOrientation & (uint)Qt::Horizontal)) {
+        _mirrorOrientation |= (uint)Qt::Horizontal;
+    } else {
+        _mirrorOrientation &= ~(uint)Qt::Horizontal;
+    }
+    _mirrored = _mirrorOrientation != 0;
+
+    setX(width - pos().x());
+}
+
+void BaseBlockConnector::mirrorVertical(qreal height) {
+    if(!(_mirrorOrientation & (uint)Qt::Vertical)) {
+        _mirrorOrientation |= (uint)Qt::Vertical;
+    } else {
+        _mirrorOrientation &= ~(uint)Qt::Vertical;
+    }
+    _mirrored = _mirrorOrientation != 0;
+
+    setY(height - pos().y());
 }
 
 void BaseBlockConnector::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
@@ -86,24 +118,26 @@ void BaseBlockConnector::paint(QPainter *painter, const QStyleOptionGraphicsItem
     painter->setPen(bodyPen);
     painter->setBrush(bodyBrush);
 
+    bool reverseArrow = ((_mirrorOrientation & (int)Qt::Horizontal) != 0) && _mirrored;
+
     if(hasConnection()) {
         if(_isInput) {
             QPointF triPoints[3];
-            triPoints[0] = QPointF(-SIZE, -SIZE);
+            triPoints[0] = QPointF(reverseArrow ? SIZE : -SIZE, -SIZE);
             triPoints[1] = QPointF(0.0, 0.0);
-            triPoints[2] = QPointF(-SIZE, SIZE);
+            triPoints[2] = QPointF(reverseArrow ? SIZE : -SIZE, SIZE);
             painter->drawPolygon(triPoints, 3);
         }
     } else if(_isInput) {
         QPointF triPoints[3];
-        triPoints[0] = QPointF(-SIZE, -SIZE);
+        triPoints[0] = QPointF(reverseArrow ? SIZE : -SIZE, -SIZE);
         triPoints[1] = QPointF(0.0, 0.0);
-        triPoints[2] = QPointF(-SIZE, SIZE);
+        triPoints[2] = QPointF(reverseArrow ? SIZE : -SIZE, SIZE);
         painter->drawPolyline(triPoints, 3);
     } else {
         QPointF triPoints[3];
         triPoints[0] = QPointF(0.0, -SIZE);
-        triPoints[1] = QPointF(SIZE, 0.0);
+        triPoints[1] = QPointF(reverseArrow ? -SIZE : SIZE, 0.0);
         triPoints[2] = QPointF(0.0, SIZE);
         painter->drawPolyline(triPoints, 3);
     }
@@ -199,4 +233,6 @@ void BaseBlockConnector::copyAttributes(BaseBlockConnector &dest) const {
     QSchematic::Items::Connector::copyAttributes(dest);
     dest._isInput = _isInput;
     dest._index = _index;
+    dest._mirrored = _mirrored;
+    dest._mirrorOrientation = _mirrorOrientation;
 }

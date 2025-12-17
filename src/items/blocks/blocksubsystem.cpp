@@ -155,7 +155,8 @@ void BlockSubsystem::populateNetlist(QSchematic::Netlist<Blocks::BaseBlock *, Bl
 
     auto innerNetlist = _subsystemWindow->generateNetlist(parentPrefix);
 
-    for(auto &node : innerNetlist->nodes) {
+    auto innerNetlistTemp = *innerNetlist;
+    for(auto &node : innerNetlistTemp.nodes) {
         auto *blockBasePtr = dynamic_cast<Blocks::BaseBlock *>(node);
         if(blockBasePtr == nullptr) continue;
 

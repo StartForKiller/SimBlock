@@ -38,6 +38,8 @@ class CustomItemFactory;
 
 namespace Windows {
 
+class View;
+
 class BaseWindow : public QMainWindow {
     Q_OBJECT
     Q_DISABLE_COPY_MOVE(BaseWindow)
@@ -52,13 +54,13 @@ class BaseWindow : public QMainWindow {
 
     public:
         QSchematic::Scene *scene();
-        QSchematic::View *view() { return _view; }
+        QSchematic::View *view() { return (QSchematic::View *)(_view); }
 
     protected:
         void settingsChanged();
 
         QSchematic::Scene *_scene = nullptr;
-        QSchematic::View *_view = nullptr;
+        Windows::View *_view = nullptr;
         QSchematic::Settings _settings;
         CustomItemFactory *_itemFactory = nullptr;
         Library::Widget *_itemLibraryWidget = nullptr;

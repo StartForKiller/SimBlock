@@ -7,6 +7,7 @@
 #include <items/widgets/dial.hpp>
 #include <library/widget.hpp>
 #include <netlist/widget.hpp>
+#include <windows/view.hpp>
 
 #include <gpds/archiver_xml.hpp>
 #include <qschematic/scene.hpp>
@@ -68,7 +69,7 @@ BaseWindow::BaseWindow(QWidget *parent) : QMainWindow(parent) {
         }
     });
 
-    _view = new QSchematic::View(this);
+    _view = new Windows::View(this);
     _view->setSettings(_settings);
     _view->setScene(_scene);
 

@@ -20,6 +20,12 @@ class BaseBlockConnector : public QSchematic::Items::Connector {
         void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
         void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
 
+        void update() override;
+
+        void mirrorHorizontal(qreal width);
+        void mirrorVertical(qreal width);
+        bool isMirrored() { return _mirrored; }
+
         bool isInput() const {
             return _isInput;
         }
@@ -30,6 +36,9 @@ class BaseBlockConnector : public QSchematic::Items::Connector {
     protected:
         bool _isInput;
         uint _index;
+
+        bool _mirrored = false;
+        uint _mirrorOrientation = 0;
 
         void copyAttributes(BaseBlockConnector &dest) const;
 };

@@ -9,6 +9,7 @@
 #include <items/widgets/dial.hpp>
 #include <library/widget.hpp>
 #include <netlist/widget.hpp>
+#include <windows/view.hpp>
 
 #include <solver/simulationworker.hpp>
 

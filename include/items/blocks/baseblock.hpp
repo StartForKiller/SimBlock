@@ -56,6 +56,12 @@ class BaseBlock : public QSchematic::Items::Node {
         QString baseName() const { return _baseName; }
         QString description() const { return _description; }
 
+        void mirrorHorizontal();
+        void mirrorVertical();
+        bool isMirrored() { return _mirrored; }
+        int mirrorOrientation() { return _mirrorOrientation; }
+        void rotateHandler();
+
         virtual Solver::BlockType getSolverBlockType() const;
 
         virtual void solveAlgebraic(const QVector<Solver::Signal> &in, QVector<Solver::Signal> &out, const QVector<Solver::Signal> &states);
@@ -82,6 +88,10 @@ class BaseBlock : public QSchematic::Items::Node {
         Windows::BaseWindow *_window;
 
         std::shared_ptr<QSchematic::Items::Label> _label;
+
+        bool _mirrored = false;
+        uint _mirrorOrientation = 0;
+        QAction *_actionRotate = nullptr;
 
         QString _baseName;
         QString _solverPrefix = QStringLiteral("");

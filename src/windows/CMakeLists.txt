@@ -4,4 +4,5 @@ target_sources(
         basewindow.cpp
         mainwindow.cpp
         subsystemwindow.cpp
+        view.cpp
 )

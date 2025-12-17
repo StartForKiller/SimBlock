@@ -60,6 +60,13 @@ BaseBlock::BaseBlock(int type, Windows::BaseWindow *window, QGraphicsItem *paren
     setGraphicsEffect(graphicsEffect);
 
     _description = QStringLiteral("Generic Description (This is an error)");
+
+    _actionRotate = new QAction(this);
+    _actionRotate->setText("Rotate");
+    _actionRotate->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
+    connect(_actionRotate, &QAction::triggered, [this] {
+        rotateHandler();
+    });
 }
 
 BaseBlock::~BaseBlock() {
@@ -71,6 +78,7 @@ gpds::container BaseBlock::to_container() const {
     addItemTypeIdToContainer(root);
     root.add_value("node", QSchematic::Items::Node::to_container());
     root.add_value("label", _label->to_container());
+    root.add_value<int>("mirror_orientation", (int)_mirrorOrientation);
 
     return root;
 }
@@ -78,6 +86,8 @@ gpds::container BaseBlock::to_container() const {
 void BaseBlock::from_container(const gpds::container &container) {
     QSchematic::Items::Node::from_container(*container.get_value<gpds::container *>("node").value());
     _label->from_container(*container.get_value<gpds::container *>("label").value());
+    _mirrorOrientation = (uint)container.get_value<int>("mirror_orientation").value_or(0);
+    _mirrored = _mirrorOrientation != 0;
 }
 
 std::shared_ptr<QSchematic::Items::Item> BaseBlock::deepCopy() const {
@@ -94,6 +104,27 @@ std::unique_ptr<QWidget> BaseBlock::popup() const {
 void BaseBlock::setBaseName(QString baseName) {
     _baseName = baseName;
     label()->setText(baseName);
+}
+
+void BaseBlock::rotateHandler() {
+    int state = _mirrored ? 2 : 0;
+    state |= (rotation() != 0 ? 1 : 0);
+    switch(state) {
+        case 0: //0º Rotation and not mirrored (0º Real rotation)
+            mirrorHorizontal();
+            setRotation(-90);
+            break;
+        case 1: //90º Rotation and not mirrored (270º Real rotation)
+            setRotation(0);
+            break;
+        case 2: //0º Rotation and mirrored (180º Real rotation)
+            mirrorHorizontal();
+            setRotation(-90);
+            break;
+        case 3: //-90º Rotation and mirrored (90º Real rotation)
+            setRotation(0);
+            break;
+    }
 }
 
 void BaseBlock::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
@@ -126,10 +157,6 @@ void BaseBlock::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
     if(isSelected() && allowMouseResize()) {
         paintResizeHandles(*painter);
-    }
-
-    if(isSelected() && allowMouseRotate()) {
-        paintRotateHandle(*painter);
     }
 }
 
@@ -241,6 +268,10 @@ void BaseBlock::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) {
             scene()->undoStack()->push(new QSchematic::Commands::ItemRemove(scene(), itemPointer));
         });
 
+        QAction *flipBlock = new QAction;
+        flipBlock->setText("Flip Horizontal");
+        connect(flipBlock, &QAction::triggered, this, &BaseBlock::mirrorHorizontal);
+
         menu.addAction(text);
         menu.addAction(labelVisibility);
         menu.addAction(alignLabel);
@@ -252,10 +283,44 @@ void BaseBlock::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) {
         menu.addAction(duplicate);
         menu.addAction(deleteFromModel);
         menu.addSeparator();
+        menu.addAction(_actionRotate);
+        menu.addAction(flipBlock);
         menu.addAction(isMovable);
     }
 
     menu.exec(event->screenPos());
+}
+
+void BaseBlock::mirrorHorizontal() {
+    if(!(_mirrorOrientation & (uint)Qt::Horizontal)) {
+        _mirrorOrientation |= (uint)Qt::Horizontal;
+    } else {
+        _mirrorOrientation &= ~(uint)Qt::Horizontal;
+    }
+    _mirrored = _mirrorOrientation != 0;
+
+    for(auto conn : connectors()) {
+        auto *connPtr = dynamic_cast<BaseBlockConnector *>(conn.get());
+        if(connPtr == nullptr) continue;
+
+        connPtr->mirrorHorizontal(size().width());
+    }
+}
+
+void BaseBlock::mirrorVertical() {
+    if(!(_mirrorOrientation & (uint)Qt::Vertical)) {
+        _mirrorOrientation |= (uint)Qt::Vertical;
+    } else {
+        _mirrorOrientation &= ~(uint)Qt::Vertical;
+    }
+    _mirrored = _mirrorOrientation != 0;
+
+    for(auto conn : connectors()) {
+        auto *connPtr = dynamic_cast<BaseBlockConnector *>(conn.get());
+        if(connPtr == nullptr) continue;
+
+        connPtr->mirrorVertical(size().height());
+    }
 }
 
 void BaseBlock::alignLabel() {
@@ -316,6 +381,8 @@ void BaseBlock::copyAttributes(BaseBlock &dest) const {
     dest._label = std::dynamic_pointer_cast<QSchematic::Items::Label>(_label->deepCopy());
     dest._label->setParentItem(&dest);
     dest._label->setText(getUnusedName(dest._label->text()));
+    dest._mirrored = _mirrored;
+    dest._mirrorOrientation = _mirrorOrientation;
 }
 
 QString BaseBlock::getUnusedName(QString baseName) const {
@@ -348,11 +415,21 @@ bool BaseBlock::nameIsInUse(QString name) const {
 }
 
 void BaseBlock::setupConnectors(QVector<BaseBlock::ConnectorAttribute> &connectorAttributes) {
+    bool mirrored = _mirrored;
+    int mirrorOrientation = _mirrorOrientation;
+    mirrored = false;
+    _mirrorOrientation = 0;
+
     clearConnectors();
     for(const auto &c : connectorAttributes) {
         auto connector = std::make_shared<BaseBlockConnector>(c.point, c.name, c.input, c.index);
         connector->label()->setVisible(false);
         addConnector(connector);
+    }
+
+    if(mirrored) {
+        if((mirrorOrientation & (uint)Qt::Horizontal) != 0) mirrorHorizontal();
+        if((mirrorOrientation & (uint)Qt::Vertical) != 0) mirrorVertical();
     }
 }
 

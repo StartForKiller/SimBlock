@@ -4,4 +4,5 @@ target_sources(
         basewindow.hpp
         mainwindow.hpp
         subsystemwindow.hpp
+        view.hpp
 )
