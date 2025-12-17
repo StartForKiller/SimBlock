@@ -1,6 +1,8 @@
 target_sources(
     ${target_library}
     PRIVATE
+        ode4solver.hpp
+        ode45solver.hpp
         simulationworker.hpp
         solver.hpp
         testsolver.hpp

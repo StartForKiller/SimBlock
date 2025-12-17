@@ -48,20 +48,21 @@ class SolverBase {
         virtual ~SolverBase();
 
         void setup(const QSchematic::Netlist<Blocks::BaseBlock *, Blocks::BaseBlockConnector *> &netlist);
-        void solve_step(double timestep);
+        virtual double solve_step(double argument);
 
         QMap<QString, Signal> getOutputValues();
 
     private:
-        void evaluateAlgebraic();
-        void f_global(const QMap<QString, QVector<Signal>> &y, QMap<QString, QVector<Signal>> &xdot);
-        void ode4_step(QMap<QString, QVector<Signal>> &y, double dt);
-
         QMap<QString, SignalID> _signalMap;
         QVector<Signal> _signals;
         QMap<QString, BlockType> _blockTypes;
-        QVector<Block> _blocks;
         QVector<Block *> _orderedBlocks;
+
+    protected:
+        void evaluateAlgebraic();
+        void f_global(const QMap<QString, QVector<Signal>> &y, QMap<QString, QVector<Signal>> &xdot);
+
+        QVector<Block> _blocks;
         QMap<QString, QVector<Signal>> _y;
 };
 

@@ -1,6 +1,8 @@
 target_sources(
     ${target_library}
     PRIVATE
+        ode4solver.cpp
+        ode45solver.cpp
         simulationworker.cpp
         solver.cpp
         testsolver.cpp

@@ -132,7 +132,7 @@ void SolverBase::setup(const QSchematic::Netlist<BaseBlock *, BaseBlockConnector
         throw std::runtime_error("Algebraic loop detected!");
     }
 
-    //evaluateAlgebraic(); //Initial evaluation
+    evaluateAlgebraic(); //Initial evaluation
 }
 
 QMap<QString, Signal> SolverBase::getOutputValues() {
@@ -148,8 +148,8 @@ QMap<QString, Signal> SolverBase::getOutputValues() {
     return output;
 }
 
-void SolverBase::solve_step(double timestep) {
-    ode4_step(_y, timestep);
+double SolverBase::solve_step(double timestep) {
+    return timestep; // No solver
 }
 
 void SolverBase::evaluateAlgebraic() {
@@ -202,46 +202,6 @@ void SolverBase::f_global(const QMap<QString, QVector<Signal>> &y, QMap<QString,
             xdot[blk.name].push_back(d);
         }
     }
-}
-
-void SolverBase::ode4_step(QMap<QString, QVector<Signal>> &y, double dt) {
-    QMap<QString, QVector<Signal>> xtmp, k1, k2, k3, k4;
-
-    for(auto &blk : _blocks) {
-        int n = y[blk.name].size();
-        xtmp[blk.name].resize(n);
-    }
-
-    f_global(y, k1);
-
-    for(auto &blk : _blocks) {
-        int n = y[blk.name].size();
-        for(int i = 0; i < n; i++)
-            xtmp[blk.name][i] = y[blk.name][i] + 0.5 * dt * k1[blk.name][i];
-    }
-    f_global(xtmp, k2);
-
-    for(auto &blk : _blocks) {
-        int n = y[blk.name].size();
-        for(int i = 0; i < n; i++)
-            xtmp[blk.name][i] = y[blk.name][i] + 0.5 * dt * k2[blk.name][i];
-    }
-    f_global(xtmp, k3);
-
-    for(auto &blk : _blocks) {
-        int n = y[blk.name].size();
-        for(int i = 0; i < n; i++)
-            xtmp[blk.name][i] = y[blk.name][i] + dt * k3[blk.name][i];
-    }
-    f_global(xtmp, k4);
-
-    for(auto &blk : _blocks) {
-        int n = y[blk.name].size();
-        for(int i = 0; i < n; i++)
-            y[blk.name][i] += (dt/6.0) * (k1[blk.name][i] + 2.0*k2[blk.name][i] + 2.0*k3[blk.name][i] + k4[blk.name][i]);
-    }
-
-    evaluateAlgebraic();
 }
 
 Signal Solver::operator*(const Signal &a, const Signal &b) {

@@ -1,7 +1,8 @@
 #include <solver/simulationworker.hpp>
-#include <solver/solver.hpp>
+#include <solver/ode4solver.hpp>
+#include <solver/ode45solver.hpp>
 
-//#define SIMBLOCK_DEBUG_SOLVER 1
+#define SIMBLOCK_DEBUG_SOLVER 1
 
 using namespace Solver;
 using namespace Blocks;
@@ -9,7 +10,7 @@ using namespace Blocks;
 SimulationWorker::SimulationWorker(QObject *parent) :
     QObject(parent)
 {
-    _solver = new Solver::SolverBase();
+    _solver = new Solver::ODE45Solver();
 }
 
 void SimulationWorker::setNetlist(QSchematic::Netlist<BaseBlock *, BaseBlockConnector *> *netlist) {
@@ -28,8 +29,25 @@ void SimulationWorker::simulate() {
     }
 
     _solver->setup(*_netlist);
-    for(double t = 0; t <= _timeToSimulate; t += _timeStep) {
-        _solver->solve_step(_timeStep);
+    auto initialOutputValues = _solver->getOutputValues();
+    emit sampleGenerated(0.0, initialOutputValues);
+
+    #ifdef SIMBLOCK_DEBUG_SOLVER
+        for(auto [netName, netValue] : initialOutputValues.asKeyValueRange()) {
+            printf("Solver (t=%f) Net(%s)=%lf\n",
+                0.0,
+                netName.toStdString().c_str(),
+                std::get<double>(netValue.data));
+        }
+    #endif
+
+    ((Solver::ODE45Solver *)_solver)->setMaxTimestep(_timeToSimulate);
+
+    for(double t = 0; t < _timeToSimulate;) {
+        double dt = _solver->solve_step(_timeStep);
+        t += dt;
+
+        ((Solver::ODE45Solver *)_solver)->setMaxTimestep(_timeToSimulate - t);
 
         auto netOutputValues = _solver->getOutputValues();
         emit sampleGenerated(t, netOutputValues);
