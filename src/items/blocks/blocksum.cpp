@@ -57,7 +57,7 @@ gpds::container BlockSum::to_container() const {
 
 void BlockSum::from_container(const gpds::container &container) {
     BaseBlock::from_container(*container.get_value<gpds::container *>("operation").value());
-    _descriptorString = QString::fromStdString(container.get_value<std::string>("operation").value_or("|++"));
+    _descriptorString = QString::fromStdString(container.get_value<std::string>("descriptor").value_or("|++"));
     updateConnectors();
 }
 
