@@ -47,6 +47,8 @@ class ODE45Solver : public SolverBase {
         explicit ODE45Solver();
         virtual ~ODE45Solver();
 
+        void setup(const QSchematic::Netlist<Blocks::BaseBlock *, Blocks::BaseBlockConnector *> &netlist) override;
+
         double solve_step(double tolerance) override;
 
         void setMaxTimestep(double h) { _maxTimeStep = h; }
@@ -55,6 +57,8 @@ class ODE45Solver : public SolverBase {
         bool tryStep(double h, double tolerance);
         double estimateError(const QVector<Signal>& y4, const QVector<Signal>& y5);
         double adaptStep(double h, double tolerance);
+
+        QVector<Signal> _yt, _y4, _y5, _k1, _k2, _k3, _k4, _k5, _k6;
 
         double _maxTimeStep = -1;
         double _h = 1e-3;

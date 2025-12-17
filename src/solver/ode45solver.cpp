@@ -18,12 +18,28 @@ ODE45Solver::~ODE45Solver() {
 
 }
 
-double ODE45Solver::estimateError(const QVector<Signal>& y4, const QVector<Signal>& y5) {
+void ODE45Solver::setup(const QSchematic::Netlist<Blocks::BaseBlock *, Blocks::BaseBlockConnector *> &netlist) {
+    SolverBase::setup(netlist);
+
+    int n = _y.size();
+
+    _yt.resize(n);
+    _y4.resize(n);
+    _y5.resize(n);
+    _k1.resize(n);
+    _k2.resize(n);
+    _k3.resize(n);
+    _k4.resize(n);
+    _k5.resize(n);
+    _k6.resize(n);
+}
+
+double ODE45Solver::estimateError(const QVector<Signal>& _y4, const QVector<Signal>& _y5) {
     double maxErr = 0.0;
 
-    int n = y4.size();
+    int n = _y4.size();
     for(int i = 0; i < n; i++) {
-        double e = abs(std::get<double>((y5[i] - y4[i]).data)); //TODO
+        double e = abs(std::get<double>((_y5[i] - _y4[i]).data)); //TODO
         maxErr = std::max(maxErr, e);
     }
 
@@ -31,52 +47,47 @@ double ODE45Solver::estimateError(const QVector<Signal>& y4, const QVector<Signa
 }
 
 bool ODE45Solver::tryStep(double h, double tolerance) {
-    QVector<Signal> yt, y4, y5, k1, k2, k3, k4, k5, k6;
-
     int n = _y.size();
-    yt.resize(n);
-    y4.resize(n);
-    y5.resize(n);
 
-    f_global(_y, k1);
+    f_global(_y, _k1);
 
     for(int i = 0; i < n; i++)
-        yt[i] = _y[i] + h * RK45Coeff::a21 * k1[i];
-    f_global(yt, k2);
+        _yt[i] = _y[i] + h * RK45Coeff::a21 * _k1[i];
+    f_global(_yt, _k2);
 
     for(int i = 0; i < n; i++)
-        yt[i] = _y[i] + h * (RK45Coeff::a31 * k1[i] + RK45Coeff::a32 * k2[i]);
-    f_global(yt, k3);
+        _yt[i] = _y[i] + h * (RK45Coeff::a31 * _k1[i] + RK45Coeff::a32 * _k2[i]);
+    f_global(_yt, _k3);
 
     for(int i = 0; i < n; i++)
-        yt[i] = _y[i] + h * (RK45Coeff::a41 * k1[i] + RK45Coeff::a42 * k2[i] + RK45Coeff::a43 * k3[i]);
-    f_global(yt, k4);
+        _yt[i] = _y[i] + h * (RK45Coeff::a41 * _k1[i] + RK45Coeff::a42 * _k2[i] + RK45Coeff::a43 * _k3[i]);
+    f_global(_yt, _k4);
 
     for(int i = 0; i < n; i++)
-        yt[i] = _y[i] + h * (RK45Coeff::a51 * k1[i] + RK45Coeff::a52 * k2[i]
-                                                + RK45Coeff::a53 * k3[i] + RK45Coeff::a54 * k4[i]);
-    f_global(yt, k5);
+        _yt[i] = _y[i] + h * (RK45Coeff::a51 * _k1[i] + RK45Coeff::a52 * _k2[i]
+                                                + RK45Coeff::a53 * _k3[i] + RK45Coeff::a54 * _k4[i]);
+    f_global(_yt, _k5);
 
     for(int i = 0; i < n; i++)
-        yt[i] = _y[i] + h * (RK45Coeff::a61 * k1[i] + RK45Coeff::a62 * k2[i]
-                                                + RK45Coeff::a63 * k3[i] + RK45Coeff::a64 * k4[i]
-                                                + RK45Coeff::a65 * k5[i]);
-    f_global(yt, k6);
+        _yt[i] = _y[i] + h * (RK45Coeff::a61 * _k1[i] + RK45Coeff::a62 * _k2[i]
+                                                + RK45Coeff::a63 * _k3[i] + RK45Coeff::a64 * _k4[i]
+                                                + RK45Coeff::a65 * _k5[i]);
+    f_global(_yt, _k6);
 
     for(int i = 0; i < n; i++) {
-        y5[i] = _y[i] + h * (RK45Coeff::b1 * k1[i] + RK45Coeff::b3 * k3[i]
-                                                + RK45Coeff::b4 * k4[i] + RK45Coeff::b5 * k5[i]
-                                                + RK45Coeff::b6 * k6[i]);
+        _y5[i] = _y[i] + h * (RK45Coeff::b1 * _k1[i] + RK45Coeff::b3 * _k3[i]
+                                                + RK45Coeff::b4 * _k4[i] + RK45Coeff::b5 * _k5[i]
+                                                + RK45Coeff::b6 * _k6[i]);
 
-        y4[i] = _y[i] + h * (RK45Coeff::b1s * k1[i] + RK45Coeff::b3s * k3[i]
-                                                + RK45Coeff::b4s * k4[i] + RK45Coeff::b5s * k5[i]
-                                                + RK45Coeff::b6s * k6[i]);
+        _y4[i] = _y[i] + h * (RK45Coeff::b1s * _k1[i] + RK45Coeff::b3s * _k3[i]
+                                                + RK45Coeff::b4s * _k4[i] + RK45Coeff::b5s * _k5[i]
+                                                + RK45Coeff::b6s * _k6[i]);
     }
 
-    _err = estimateError(y4, y5);
+    _err = estimateError(_y4, _y5);
 
     if(_err <= tolerance) {
-        _y = y5;
+        _y = _y5;
         evaluateAlgebraic();
         return true;
     }

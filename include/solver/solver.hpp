@@ -48,7 +48,7 @@ class SolverBase {
         explicit SolverBase();
         virtual ~SolverBase();
 
-        void setup(const QSchematic::Netlist<Blocks::BaseBlock *, Blocks::BaseBlockConnector *> &netlist);
+        virtual void setup(const QSchematic::Netlist<Blocks::BaseBlock *, Blocks::BaseBlockConnector *> &netlist);
         virtual double solve_step(double argument);
 
         QMap<QString, Signal> getOutputValues();
