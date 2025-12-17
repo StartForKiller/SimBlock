@@ -19,41 +19,27 @@ ODE4Solver::~ODE4Solver() {
 }
 
 double ODE4Solver::solve_step(double dt) {
-    QMap<QString, QVector<Signal>> xtmp, k1, k2, k3, k4;
+    QVector<Signal> xtmp, k1, k2, k3, k4;
 
-    for(auto &blk : _blocks) {
-        int n = _y[blk.name].size();
-        xtmp[blk.name].resize(n);
-    }
+    int n = _y.size();
+    xtmp.resize(n);
 
     f_global(_y, k1);
 
-    for(auto &blk : _blocks) {
-        int n = _y[blk.name].size();
-        for(int i = 0; i < n; i++)
-            xtmp[blk.name][i] = _y[blk.name][i] + 0.5 * dt * k1[blk.name][i];
-    }
+    for(int i = 0; i < n; i++)
+        xtmp[i] = _y[i] + 0.5 * dt * k1[i];
     f_global(xtmp, k2);
 
-    for(auto &blk : _blocks) {
-        int n = _y[blk.name].size();
-        for(int i = 0; i < n; i++)
-            xtmp[blk.name][i] = _y[blk.name][i] + 0.5 * dt * k2[blk.name][i];
-    }
+    for(int i = 0; i < n; i++)
+        xtmp[i] = _y[i] + 0.5 * dt * k2[i];
     f_global(xtmp, k3);
 
-    for(auto &blk : _blocks) {
-        int n = _y[blk.name].size();
-        for(int i = 0; i < n; i++)
-            xtmp[blk.name][i] = _y[blk.name][i] + dt * k3[blk.name][i];
-    }
+    for(int i = 0; i < n; i++)
+        xtmp[i] = _y[i] + dt * k3[i];
     f_global(xtmp, k4);
 
-    for(auto &blk : _blocks) {
-        int n = _y[blk.name].size();
-        for(int i = 0; i < n; i++)
-            _y[blk.name][i] += (dt/6.0) * (k1[blk.name][i] + 2.0*k2[blk.name][i] + 2.0*k3[blk.name][i] + k4[blk.name][i]);
-    }
+    for(int i = 0; i < n; i++)
+        _y[i] += (dt/6.0) * (k1[i] + 2.0*k2[i] + 2.0*k3[i] + k4[i]);
 
     evaluateAlgebraic();
 

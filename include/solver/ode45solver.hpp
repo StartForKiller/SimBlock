@@ -53,7 +53,7 @@ class ODE45Solver : public SolverBase {
 
     private:
         bool tryStep(double h, double tolerance);
-        double estimateError(const QMap<QString, QVector<Signal>>& y4, const QMap<QString, QVector<Signal>>& y5);
+        double estimateError(const QVector<Signal>& y4, const QVector<Signal>& y5);
         double adaptStep(double h, double tolerance);
 
         double _maxTimeStep = -1;

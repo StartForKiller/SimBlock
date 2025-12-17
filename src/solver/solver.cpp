@@ -85,12 +85,13 @@ void SolverBase::setup(const QSchematic::Netlist<BaseBlock *, BaseBlockConnector
     }
 
     _y.clear();
-    for(auto &blk : _blocks) {
-        _y[blk.name].clear();
 
-        auto &type = _blockTypes[blk.type];
-        _y[blk.name].resize(type.numStates, make_signal(0.0));
+    int stateCount = 0;
+    for(auto &blk : _blocks) {
+        blk.stateOffset = stateCount;
+        stateCount += _blockTypes[blk.type].numStates;
     }
+    _y.resize(stateCount, make_signal(0.0));
 
     _orderedBlocks.clear();
 
@@ -173,16 +174,15 @@ void SolverBase::evaluateAlgebraic() {
     }
 }
 
-void SolverBase::f_global(const QMap<QString, QVector<Signal>> &y, QMap<QString, QVector<Signal>> &xdot) {
+void SolverBase::f_global(const QVector<Signal> &y, QVector<Signal> &xdot) {
     for(auto &blk : const_cast<QVector<Block> &>(_blocks)) {
-        int idx = 0;
         auto &type = _blockTypes[blk.type];
         for(int i = 0; i < type.numStates; i++) {
-            const_cast<Block &>(blk).states[i] = y[blk.name][idx++];
+            const_cast<Block &>(blk).states[i] = y[blk.stateOffset + i];
         }
     }
 
-    xdot.clear();
+    xdot.resize(y.size());
     for(auto &blk : _blocks) {
         auto &type = _blockTypes[blk.type];
         if(type.numStates == 0) continue;
@@ -199,7 +199,8 @@ void SolverBase::f_global(const QMap<QString, QVector<Signal>> &y, QMap<QString,
 
         for(Signal d : dx) {
             int idx = 0;
-            xdot[blk.name].push_back(d);
+            xdot[blk.stateOffset + idx] = d;
+            idx++;
         }
     }
 }

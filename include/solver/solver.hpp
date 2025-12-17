@@ -32,6 +32,7 @@ struct Block {
     QVector<SignalID> inputs;
     QVector<SignalID> outputs;
     QVector<Signal> states;
+    int stateOffset = -1;
 };
 
 struct BlockType {
@@ -60,10 +61,10 @@ class SolverBase {
 
     protected:
         void evaluateAlgebraic();
-        void f_global(const QMap<QString, QVector<Signal>> &y, QMap<QString, QVector<Signal>> &xdot);
+        void f_global(const QVector<Signal> &y, QVector<Signal> &xdot);
 
         QVector<Block> _blocks;
-        QMap<QString, QVector<Signal>> _y;
+        QVector<Signal> _y;
 };
 
 inline Signal make_signal(double x) {

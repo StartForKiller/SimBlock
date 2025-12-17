@@ -18,81 +18,59 @@ ODE45Solver::~ODE45Solver() {
 
 }
 
-double ODE45Solver::estimateError(const QMap<QString, QVector<Signal>>& y4, const QMap<QString, QVector<Signal>>& y5) {
+double ODE45Solver::estimateError(const QVector<Signal>& y4, const QVector<Signal>& y5) {
     double maxErr = 0.0;
 
-    for(auto &blk : _blocks) {
-        int n = y4[blk.name].size();
-        for(int i = 0; i < n; i++) {
-            double e = abs(std::get<double>((y5[blk.name][i] - y4[blk.name][i]).data)); //TODO
-            maxErr = std::max(maxErr, e);
-        }
+    int n = y4.size();
+    for(int i = 0; i < n; i++) {
+        double e = abs(std::get<double>((y5[i] - y4[i]).data)); //TODO
+        maxErr = std::max(maxErr, e);
     }
 
     return maxErr;
 }
 
 bool ODE45Solver::tryStep(double h, double tolerance) {
-    QMap<QString, QVector<Signal>> yt, y4, y5, k1, k2, k3, k4, k5, k6;
+    QVector<Signal> yt, y4, y5, k1, k2, k3, k4, k5, k6;
 
-    for(auto &blk : _blocks) {
-        int n = _y[blk.name].size();
-        yt[blk.name].resize(n);
-        y4[blk.name].resize(n);
-        y5[blk.name].resize(n);
-    }
+    int n = _y.size();
+    yt.resize(n);
+    y4.resize(n);
+    y5.resize(n);
 
     f_global(_y, k1);
 
-    for(auto &blk : _blocks) {
-        int n = _y[blk.name].size();
-        for(int i = 0; i < n; i++)
-            yt[blk.name][i] = _y[blk.name][i] + h * RK45Coeff::a21 * k1[blk.name][i];
-    }
+    for(int i = 0; i < n; i++)
+        yt[i] = _y[i] + h * RK45Coeff::a21 * k1[i];
     f_global(yt, k2);
 
-    for(auto &blk : _blocks) {
-        int n = _y[blk.name].size();
-        for(int i = 0; i < n; i++)
-            yt[blk.name][i] = _y[blk.name][i] + h * (RK45Coeff::a31 * k1[blk.name][i] + RK45Coeff::a32 * k2[blk.name][i]);
-    }
+    for(int i = 0; i < n; i++)
+        yt[i] = _y[i] + h * (RK45Coeff::a31 * k1[i] + RK45Coeff::a32 * k2[i]);
     f_global(yt, k3);
 
-    for(auto &blk : _blocks) {
-        int n = _y[blk.name].size();
-        for(int i = 0; i < n; i++)
-            yt[blk.name][i] = _y[blk.name][i] + h * (RK45Coeff::a41 * k1[blk.name][i] + RK45Coeff::a42 * k2[blk.name][i] + RK45Coeff::a43 * k3[blk.name][i]);
-    }
+    for(int i = 0; i < n; i++)
+        yt[i] = _y[i] + h * (RK45Coeff::a41 * k1[i] + RK45Coeff::a42 * k2[i] + RK45Coeff::a43 * k3[i]);
     f_global(yt, k4);
 
-    for(auto &blk : _blocks) {
-        int n = _y[blk.name].size();
-        for(int i = 0; i < n; i++)
-            yt[blk.name][i] = _y[blk.name][i] + h * (RK45Coeff::a51 * k1[blk.name][i] + RK45Coeff::a52 * k2[blk.name][i]
-                                                    + RK45Coeff::a53 * k3[blk.name][i] + RK45Coeff::a54 * k4[blk.name][i]);
-    }
+    for(int i = 0; i < n; i++)
+        yt[i] = _y[i] + h * (RK45Coeff::a51 * k1[i] + RK45Coeff::a52 * k2[i]
+                                                + RK45Coeff::a53 * k3[i] + RK45Coeff::a54 * k4[i]);
     f_global(yt, k5);
 
-    for(auto &blk : _blocks) {
-        int n = _y[blk.name].size();
-        for(int i = 0; i < n; i++)
-            yt[blk.name][i] = _y[blk.name][i] + h * (RK45Coeff::a61 * k1[blk.name][i] + RK45Coeff::a62 * k2[blk.name][i]
-                                                    + RK45Coeff::a63 * k3[blk.name][i] + RK45Coeff::a64 * k4[blk.name][i]
-                                                    + RK45Coeff::a65 * k5[blk.name][i]);
-    }
+    for(int i = 0; i < n; i++)
+        yt[i] = _y[i] + h * (RK45Coeff::a61 * k1[i] + RK45Coeff::a62 * k2[i]
+                                                + RK45Coeff::a63 * k3[i] + RK45Coeff::a64 * k4[i]
+                                                + RK45Coeff::a65 * k5[i]);
     f_global(yt, k6);
 
-    for(auto &blk : _blocks) {
-        int n = _y[blk.name].size();
-        for(int i = 0; i < n; i++) {
-            y5[blk.name][i] = _y[blk.name][i] + h * (RK45Coeff::b1 * k1[blk.name][i] + RK45Coeff::b3 * k3[blk.name][i]
-                                                    + RK45Coeff::b4 * k4[blk.name][i] + RK45Coeff::b5 * k5[blk.name][i]
-                                                    + RK45Coeff::b6 * k6[blk.name][i]);
+    for(int i = 0; i < n; i++) {
+        y5[i] = _y[i] + h * (RK45Coeff::b1 * k1[i] + RK45Coeff::b3 * k3[i]
+                                                + RK45Coeff::b4 * k4[i] + RK45Coeff::b5 * k5[i]
+                                                + RK45Coeff::b6 * k6[i]);
 
-            y4[blk.name][i] = _y[blk.name][i] + h * (RK45Coeff::b1s * k1[blk.name][i] + RK45Coeff::b3s * k3[blk.name][i]
-                                                    + RK45Coeff::b4s * k4[blk.name][i] + RK45Coeff::b5s * k5[blk.name][i]
-                                                    + RK45Coeff::b6s * k6[blk.name][i]);
-        }
+        y4[i] = _y[i] + h * (RK45Coeff::b1s * k1[i] + RK45Coeff::b3s * k3[i]
+                                                + RK45Coeff::b4s * k4[i] + RK45Coeff::b5s * k5[i]
+                                                + RK45Coeff::b6s * k6[i]);
     }
 
     _err = estimateError(y4, y5);
