@@ -2,7 +2,7 @@
 #include <solver/ode4solver.hpp>
 #include <solver/ode45solver.hpp>
 
-#define SIMBLOCK_DEBUG_SOLVER 1
+//#define SIMBLOCK_DEBUG_SOLVER 1
 
 using namespace Solver;
 using namespace Blocks;
