@@ -96,9 +96,6 @@ void ScopeWindow::onStartSimulation(const Solver::Signal &definition) {
     _plot->replot();
 
     _refreshTimer->start(33);
-
-    //_graph->data()->clear();
-    //_plot->replot(QCustomPlot::rpQueuedReplot);
 }
 
 double ScopeWindow::extract(const Solver::Signal &sig, const ChannelLayout &ch) {
