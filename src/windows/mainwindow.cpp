@@ -262,7 +262,7 @@ void MainWindow::solve() {
 
         auto scopeNode = dynamic_cast<Blocks::BlockScope *>(node.get());
         if(scopeNode != nullptr) {
-            scopeNode->onStartSimulation();
+            scopeNode->onStartSimulation(Solver::make_signal(0.0)); //TODO
         }
     }
 

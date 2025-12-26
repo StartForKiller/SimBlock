@@ -96,10 +96,10 @@ void BlockScope::onNewSample(double t, QMap<QString, Solver::Signal> values) {
     }
 }
 
-void BlockScope::onStartSimulation() {
+void BlockScope::onStartSimulation(const Solver::Signal &definition) {
     generateScopeWindow();
 
     _netName = QStringLiteral("");
 
-    _scopeWindow->onStartSimulation();
+    _scopeWindow->onStartSimulation(definition);
 }

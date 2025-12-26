@@ -2,6 +2,8 @@
 
 #include <QMainWindow>
 
+#include <scope/scopesignal.hpp>
+
 class QCustomPlot;
 class QCPGraph;
 
@@ -10,6 +12,11 @@ namespace Solver {
 };
 
 namespace Scope {
+
+struct ChannelBinding {
+    ScopeChannel *channel;
+    QCPGraph *graph;
+};
 
 class ScopeWindow : public QMainWindow {
     Q_OBJECT
@@ -20,12 +27,21 @@ class ScopeWindow : public QMainWindow {
         ~ScopeWindow() override = default;
 
     private:
+        double extract(const Solver::Signal &sig, const ChannelLayout &ch);
+        void updatePlot();
+
         QCustomPlot *_plot;
         QCPGraph *_graph;
 
+        QVector<ChannelLayout> _layout;
+        QVector<ScopeChannel *> _channels;
+        QVector<ChannelBinding> _bindings;
+
+        QTimer *_refreshTimer;
+
     public slots:
         void onNewSample(double t, Solver::Signal value);
-        void onStartSimulation();
+        void onStartSimulation(const Solver::Signal &definition);
 };
 
 }

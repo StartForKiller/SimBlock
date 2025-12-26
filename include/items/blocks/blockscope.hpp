@@ -36,7 +36,7 @@ class BlockScope : public BaseBlock {
 
     public slots:
         void onNewSample(double t, QMap<QString, Solver::Signal> values);
-        void onStartSimulation();
+        void onStartSimulation(const Solver::Signal &definition);
 };
 
 }
